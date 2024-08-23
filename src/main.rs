@@ -141,17 +141,17 @@ fn do_fritz(tx: std::sync::mpsc::Sender<Mymessage>) {
         (bytesin, bytesout) = do_parse(&result);
 
         let answ1 = Mymessage {
-            topic: String::from("hello/bytesin"),
+            topic: String::from("HomeServer/Internet/DownloadRate"),
             payload: bytesin.to_string(),
         };
         let answ2 = Mymessage {
-            topic: String::from("hello/bytesout"),
+            topic: String::from("HomeServer/Internet/UploadRate"),
             payload: bytesout.to_string(),
         };
         if let Err(_) =  tx.send(answ1) {/* nothing */};
         if let Err(_) =  tx.send(answ2) {/* nothing */};
 
-        sleep(Duration::from_secs(20));
+        sleep(Duration::from_secs(15));
     }
 }
 
@@ -174,7 +174,7 @@ fn main()  {
         sleep(Duration::from_millis(100));
 
         if let Ok(notification) = connection.recv() {
-            println!("Notification = {notification:?}");
+            //println!("Notification = {notification:?}");
         }
 
         match rx.try_recv() {
