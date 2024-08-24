@@ -117,20 +117,6 @@ fn post_request() -> String {
     }
 }
 
-/*
-fn do_fritz(client: Client)  {
-    let result:  String = post_request();
-    //println!("Body main:\n{}", result);
-
-    let bytesin:i32;
-    let bytesout:i32;
-    (bytesin, bytesout) = do_parse(&result);
-    println!("in/out    {}  -  {}", bytesin, bytesout);
-    client.try_publish("hello/bytesin".to_string(), QoS::AtLeastOnce, true, bytesin.to_string().as_bytes()).unwrap();
-    client.try_publish("hello/bytesout".to_string(), QoS::AtLeastOnce, true, bytesout.to_string().as_bytes()).unwrap();
-}
-    */
-
 fn do_fritz(tx: std::sync::mpsc::Sender<Mymessage>) {
     loop {
         let result:  String = post_request();
@@ -151,12 +137,25 @@ fn do_fritz(tx: std::sync::mpsc::Sender<Mymessage>) {
         if let Err(_) =  tx.send(answ1) {/* nothing */};
         if let Err(_) =  tx.send(answ2) {/* nothing */};
 
+        #[cfg(debug_assertions)]
+        println!("Fritz: {} {}", bytesin, bytesout);
+
         sleep(Duration::from_secs(15));
     }
 }
 
 fn main()  {
-    let mut mqttoptions = MqttOptions::new("test-1", "192.168.0.46", 1883);
+    let mqttuser: String;
+    let hostname = env!("HOSTNAME");
+    if hostname != "" {
+         mqttuser = hostname.to_string();
+    }
+    else {
+         mqttuser = "MQTT_".to_owned()+env!("USER");
+    }
+
+
+    let mut mqttoptions = MqttOptions::new(mqttuser, "192.168.0.46", 1883);
     mqttoptions
         .set_keep_alive(Duration::from_secs(5))
         .set_credentials("Enzel", "hausen");
@@ -174,11 +173,20 @@ fn main()  {
         sleep(Duration::from_millis(100));
 
         if let Ok(notification) = connection.recv() {
-            //println!("Notification = {notification:?}");
+            #[cfg(debug_assertions)]
+            println!("Notification = {notification:?}");
         }
 
         match rx.try_recv() {
-            Ok(msg) => client.try_publish(msg.topic, QoS::AtLeastOnce, true, msg.payload.as_bytes()).unwrap(),
+            Ok(msg) => {
+                if cfg!(debug_assertions) {
+                    let topic: String = "Debug/".to_string()+&msg.topic;
+                    client.try_publish(topic, QoS::AtLeastOnce, true, msg.payload.as_bytes()).unwrap()
+                } else {
+                    client.try_publish(msg.topic, QoS::AtLeastOnce, true, msg.payload.as_bytes()).unwrap()
+                }
+                
+            },
    
             Err(std::sync::mpsc::TryRecvError::Empty) => continue,
 
