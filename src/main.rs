@@ -66,59 +66,25 @@ fn do_parse(xml: &str) -> (i32, i32) {
     (bytesin, bytesout)
 }
 
-
-/*/
-async fn get_request() -> String {
-    let response = match reqwest::get("https://www.fruityvice.com/api/fruit/appple").await {
-        Ok(answer) => answer,
-        Err(_) =>  return String::new(),
-    };
- 
-    let status = response.status().as_u16();
-    if status != 200 {
-        return String::new()
-    }
-    else {
-        let body: String = match response.text().await {
-            Ok(answer) => answer,
-            Err(_) => String::new(),
-        };
-        return body
-    }
-}
-*/
-
-fn post_request() -> String {
-    let body:&'static str = "<?xml version=\"1.0\"?><s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\"
-        s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">
-        <s:Body><u:GetAddonInfos xmlns:u=\"urn:schemas-upnp-org:service:WANCommonInterfaceConfig:1\">
-        </u:GetAddonInfos></s:Body></s:Envelope>";
-    let client = reqwest::blocking::Client::new();
-    let response = match client.post("http://fritz.box:49000/igdupnp/control/WANCommonIFC1")
-        .header("Content-Type", "text/xml")
-        .header("SOAPACTION", "urn:schemas-upnp-org:service:WANCommonInterfaceConfig:1#GetAddonInfos")
-        .body(body)
-        .send() {
-        Ok(answer) => answer,
-        Err(_) =>  return String::new(),
-    };
- 
-    let status = response.status().as_u16();
-    if status != 200 {
-        return String::new()
-    }
-    else {
-        let body: String = match response.text() {
-            Ok(answer) => answer,
-            Err(_) => String::new(),
-        };
-        return body
-    }
-}
+pub mod http;
 
 fn do_fritz(tx: std::sync::mpsc::Sender<Mymessage>) {
     loop {
-        let result:  String = post_request();
+        let body:&'static str = "<?xml version=\"1.0\"?><s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\"
+        s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">
+        <s:Body><u:GetAddonInfos xmlns:u=\"urn:schemas-upnp-org:service:WANCommonInterfaceConfig:1\">
+        </u:GetAddonInfos></s:Body></s:Envelope>";
+        let url:&'static str = "http://fritz.box:49000/igdupnp/control/WANCommonIFC1";
+        let header1: http::MyHeaders = 
+            http::MyHeaders{
+                key: "Content-Type".to_string(), 
+                value: "text/xml".to_string()};
+        let header2: http::MyHeaders = 
+                http::MyHeaders{
+                    key: "SOAPACTION".to_string(), 
+                    value: "urn:schemas-upnp-org:service:WANCommonInterfaceConfig:1#GetAddonInfos".to_string()};
+
+        let result:  String = http::post_request(body, url, header1, header2);
         //println!("Body main:\n{}", result);
 
         let bytesin:i32;
