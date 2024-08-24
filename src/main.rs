@@ -7,7 +7,6 @@ use rumqttc::{Client, MqttOptions, QoS};
 use std::time::{Duration};
 use std::sync::mpsc;
 
-
 // compile: cargo build
 // test: cargo run
 // final: cargo build --release     // binary in target/release
@@ -194,4 +193,35 @@ fn main()  {
         }
     }
 
+}
+
+
+
+
+#[cfg(test)]
+mod tests {
+
+    #[test]
+    fn example() {
+        let result = 2+2;
+        assert_eq!(result, 4);
+    }
+
+    #[test]
+    fn testxml() {
+        let file_path = "xmltest.txt";
+        let result = std::fs::read_to_string(file_path)
+        .expect("Should have been able to read the file");
+
+        println!("xml: {}", result);
+
+        let bytesin:i32;
+        let bytesout:i32;
+        (bytesin, bytesout) = crate::do_parse(&result);
+
+        println!("parse: {} {}", bytesin, bytesout);
+
+        assert_eq!(bytesin, 8757);
+        assert_eq!(bytesout, 1007);
+    }  
 }
