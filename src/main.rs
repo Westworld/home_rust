@@ -10,6 +10,10 @@ use std::sync::mpsc;
 // compile: cargo build
 // test: cargo run
 // final: cargo build --release     // binary in target/release
+// kill old running build on raspi first
+// ps ax | grep -v grep | grep home_rust
+// nohup /home/pi/rust/home_rust/target/release/http_test &
+
 
 pub struct Mymessage {
     pub topic: String,
@@ -19,6 +23,7 @@ pub struct Mymessage {
 pub mod http;
 pub mod fritz;
 pub mod sonnen;
+pub mod wallbox;
 
 fn main()  {
     let mqttclient: String;
@@ -51,12 +56,17 @@ fn main()  {
             sonnen::do_sonnen(tx3);
         });
 
+    let tx4 = tx.clone();
+    let _handle = thread::spawn( || {
+            wallbox::do_wallbox(tx4);
+        });
+
     loop {
         sleep(Duration::from_millis(100));
 
-        if let Ok(notification) = connection.recv() {
+        if let Ok(_notification) = connection.recv() {
             #[cfg(debug_assertions)]
-            println!("Notification = {notification:?}");
+            println!("Notification = {_notification:?}");
         }
 
         match rx.try_recv() {
