@@ -1,14 +1,17 @@
-
+use std::time::{Duration};
 
 pub struct MyHeaders {
     pub key: String,
     pub value: String,
 }
 
+pub fn get_request(the_url: &str) -> String {
+    let client = reqwest::blocking::Client::new();
+    let timeout_duration = Duration::from_secs(2);
 
-/*/
-async fn get_request() -> String {
-    let response = match reqwest::get("https://www.fruityvice.com/api/fruit/appple").await {
+    let response = match client.get(the_url)
+        .timeout(timeout_duration)
+        .send() {
         Ok(answer) => answer,
         Err(_) =>  return String::new(),
     };
@@ -18,14 +21,14 @@ async fn get_request() -> String {
         return String::new()
     }
     else {
-        let body: String = match response.text().await {
+        let body: String = match response.text() {
             Ok(answer) => answer,
             Err(_) => String::new(),
         };
         return body
     }
 }
-*/
+
 
 pub fn post_request(the_body: &'static str, the_url: &'static str, header1: MyHeaders, header2: MyHeaders) -> String {
     /*let headers: Vec<MyHeaders> = vec![

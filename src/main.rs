@@ -11,35 +11,45 @@ use std::sync::mpsc;
 // test: cargo run
 // final: cargo build --release     // binary in target/release
 
-
+pub struct Mymessage {
+    pub topic: String,
+    pub payload: String,
+}
 
 pub mod http;
 pub mod fritz;
+pub mod sonnen;
 
 fn main()  {
-    let mqttuser: String;
-    let hostname = env!("HOSTNAME");
-    if hostname != "" {
-         mqttuser = hostname.to_string();
+    let mqttclient: String;
+    let hostname = env!("HOSTNAME");  // compile time!!!
+    if hostname != "Thomas_test" {
+         mqttclient = hostname.to_string();
     }
     else {
-         mqttuser = "MQTT_".to_owned()+env!("USER");
+        mqttclient = "MQTT_".to_owned()+env!("HOSTNAME");
     }
+    
+    let mqttuser  = env!("MQTT_user");
+    let mqttpass  = env!("MQTT_password");
 
-
-    let mut mqttoptions = MqttOptions::new(mqttuser, "192.168.0.46", 1883);
+    let mut mqttoptions = MqttOptions::new(mqttclient, "192.168.0.46", 1883);
     mqttoptions
         .set_keep_alive(Duration::from_secs(5))
-        .set_credentials("Enzel", "hausen");
+        .set_credentials(mqttuser, mqttpass);
 
     let (client, mut connection) = Client::new(mqttoptions, 10);
     let (tx, rx) = mpsc::channel();
     
-        let tx2 = tx.clone();
-        let _handle = thread::spawn( || {
+    let tx2 = tx.clone();
+    let _handle = thread::spawn( || {
             fritz::do_fritz(tx2);
         });
 
+    let tx3 = tx.clone();
+    let _handle = thread::spawn( || {
+            sonnen::do_sonnen(tx3);
+        });
 
     loop {
         sleep(Duration::from_millis(100));

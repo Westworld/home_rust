@@ -4,10 +4,6 @@ use quick_xml::reader::Reader;
 use std::thread::sleep;
 use std::time::{Duration};
 
-pub struct Mymessage {
-    pub topic: String,
-    pub payload: String,
-}
 
 fn do_parse(xml: &str) -> (i32, i32) {
     let mut reader = Reader::from_str(xml);
@@ -60,7 +56,7 @@ fn do_parse(xml: &str) -> (i32, i32) {
 }
 
 
-pub fn do_fritz(tx: std::sync::mpsc::Sender<Mymessage>) {
+pub fn do_fritz(tx: std::sync::mpsc::Sender<crate::Mymessage>) {
     loop {
         let body:&'static str = "<?xml version=\"1.0\"?><s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\"
         s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">
@@ -83,11 +79,11 @@ pub fn do_fritz(tx: std::sync::mpsc::Sender<Mymessage>) {
         let bytesout:i32;
         (bytesin, bytesout) = do_parse(&result);
 
-        let answ1 = Mymessage {
+        let answ1 = crate::Mymessage {
             topic: String::from("HomeServer/Internet/DownloadRate"),
             payload: bytesin.to_string(),
         };
-        let answ2 = Mymessage {
+        let answ2 = crate::Mymessage {
             topic: String::from("HomeServer/Internet/UploadRate"),
             payload: bytesout.to_string(),
         };
