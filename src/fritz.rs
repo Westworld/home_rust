@@ -102,12 +102,6 @@ pub fn do_fritz(tx: std::sync::mpsc::Sender<crate::Mymessage>) {
 mod tests {
 
     #[test]
-    fn example() {
-        let result = 2+2;
-        assert_eq!(result, 4);
-    }
-
-    #[test]
     fn testxml() {
         let file_path = "xmltest.txt";
         let result = std::fs::read_to_string(file_path)

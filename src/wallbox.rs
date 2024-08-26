@@ -15,7 +15,7 @@ fn get_wallbox(tx: &std::sync::mpsc::Sender<crate::Mymessage>)  {
         host1 = "http://192.168.0.63/proxy.php/192.168.189.3/api/status?filter=car,amp,alw,eto,nrg,psm,frc";
     }
 
-    let answer : String = crate::http::get_request(host1);
+    let answer : String = crate::http::get_request(host1, 10);
     #[cfg(debug_assertions)]
     println!("wallbox {}", answer);
 

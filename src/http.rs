@@ -5,9 +5,9 @@ pub struct MyHeaders {
     pub value: String,
 }
 
-pub fn get_request(the_url: &str) -> String {
+pub fn get_request(the_url: &str, timeout: u64) -> String {
     let client = reqwest::blocking::Client::new();
-    let timeout_duration = Duration::from_secs(2);
+    let timeout_duration = Duration::from_secs(timeout);
 
     let response = match client.get(the_url)
         .timeout(timeout_duration)

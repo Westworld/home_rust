@@ -9,6 +9,7 @@ use std::sync::mpsc;
 
 // compile: cargo build
 // test: cargo run
+// test:  cargo test -- --nocapture
 // final: cargo build --release     // binary in target/release
 // kill old running build on raspi first
 // ps ax | grep -v grep | grep home_rust
@@ -24,6 +25,7 @@ pub mod http;
 pub mod fritz;
 pub mod sonnen;
 pub mod wallbox;
+pub mod wandler;
 
 fn main()  {
     let mqttclient: String;
@@ -45,7 +47,7 @@ fn main()  {
 
     let (client, mut connection) = Client::new(mqttoptions, 10);
     let (tx, rx) = mpsc::channel();
-    
+  /*   
     let tx2 = tx.clone();
     let _handle = thread::spawn( || {
             fritz::do_fritz(tx2);
@@ -59,6 +61,11 @@ fn main()  {
     let tx4 = tx.clone();
     let _handle = thread::spawn( || {
             wallbox::do_wallbox(tx4);
+        });
+*/
+    let tx5 = tx.clone();
+    let _handle = thread::spawn( || {
+            wandler::do_wandler(tx5);
         });
 
     loop {

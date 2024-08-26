@@ -40,7 +40,7 @@ fn get_sonnen(tx: &std::sync::mpsc::Sender<crate::Mymessage>, subid:i32) -> bool
 
     let thehost = host1.to_owned()+&subid.to_string()+host2;
 
-    let answer : String = crate::http::get_request(&thehost.as_str());
+    let answer : String = crate::http::get_request(&thehost.as_str(), 2);
     #[cfg(debug_assertions)]
     println!("sonnen ip: {} - {}",thehost, answer);
 
