@@ -47,7 +47,7 @@ fn main()  {
 
     let (client, mut connection) = Client::new(mqttoptions, 10);
     let (tx, rx) = mpsc::channel();
-  /*   
+    
     let tx2 = tx.clone();
     let _handle = thread::spawn( || {
             fritz::do_fritz(tx2);
@@ -62,7 +62,7 @@ fn main()  {
     let _handle = thread::spawn( || {
             wallbox::do_wallbox(tx4);
         });
-*/
+
     let tx5 = tx.clone();
     let _handle = thread::spawn( || {
             wandler::do_wandler(tx5);
