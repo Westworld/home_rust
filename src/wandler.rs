@@ -156,6 +156,7 @@ fn get_wandler_month(inlocal: &DateTime<Local> )  {
         url = "http://192.168.0.63/proxy.php/192.168.189.".to_string();
     }
 
+    #[cfg(debug_assertions)]
     println!("day: {} {}", path, url);
 
     if !Path::new(&path).exists() {
@@ -233,7 +234,7 @@ fn get_wandler(tx: &std::sync::mpsc::Sender<crate::Mymessage>) -> i32 {
 
     let total:i32 = wg+wh;
 
-    send_message("HomeServer/Strom/Haus", wh.to_string(), tx);
+    send_message("HomeServer/Strom/Dach", wh.to_string(), tx);
     send_message("HomeServer/Strom/Garage", wg.to_string(), tx);
     send_message("HomeServer/Strom/GarageN", wg_n.to_string(), tx);
     send_message("HomeServer/Strom/GarageS", wg_s.to_string(), tx);

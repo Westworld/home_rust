@@ -13,7 +13,7 @@ use std::sync::mpsc;
 // final: cargo build --release     // binary in target/release
 // kill old running build on raspi first
 // ps ax | grep -v grep | grep home_rust
-// nohup /home/pi/rust/home_rust/target/release/http_test &
+// sudo nohup /home/pi/rust/home_rust/target/release/http_test &
 
 
 pub struct Mymessage {
