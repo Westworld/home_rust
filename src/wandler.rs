@@ -22,17 +22,22 @@ fn send_message(the_topic: &str, the_payload:String, tx: &std::sync::mpsc::Sende
     if let Err(_) =  tx.send(answ1) {/* nothing */};    
 }
 
-fn get_wandler_hour_sub(url: String, path: String) ->f64 {
+fn get_wandler_hour_sub(url: String, path: String, tx: &std::sync::mpsc::Sender<crate::Mymessage>) ->f64 {
     let answer : String = crate::http::get_request(&url, 25);
     #[cfg(debug_assertions)]
     println!("{} {}", url, answer);
 
     if answer != "" {
-        fs::write(path, &answer).expect("Unable to write file");
+        if let Err(_) = fs::write(&path, &answer) {
+            #[cfg(debug_assertions)]
+            println!("Error write File {}", &path);
+            send_message("HomeServer/Error", format!("Error write File {}", &path), tx);
+        }
     }
     else {
         #[cfg(debug_assertions)]
         println!("error url request {}", url);
+        send_message("HomeServer/Error", format!("Error url request {}", &url), tx);
     }
 
     let v: Vec<&str> = answer.split('\r').collect();
@@ -47,17 +52,22 @@ fn get_wandler_hour_sub(url: String, path: String) ->f64 {
     return -1.0;
 }
 
-fn get_wandler_month_sub(url: String, path: String) {
+fn get_wandler_month_sub(url: String, path: String, tx: &std::sync::mpsc::Sender<crate::Mymessage>) {
     let answer : String = crate::http::get_request(&url, 25);
     #[cfg(debug_assertions)]
     println!("{} {}", url, answer);
 
     if answer != "" {
-        fs::write(path, &answer).expect("Unable to write file");
+        if let Err(_) = fs::write(&path, &answer) {
+            #[cfg(debug_assertions)]
+            println!("Error write File {}", &path);
+            send_message("HomeServer/Error", format!("Error write File {}", &path), tx);
+        }
     }
     else {
         #[cfg(debug_assertions)]
         println!("error url request {}", url);
+        send_message("HomeServer/Error", format!("Error url request {}", &url), tx);
     }
 }
 
@@ -87,22 +97,28 @@ fn get_wandler_hour(tx: &std::sync::mpsc::Sender<crate::Mymessage>, local: &Date
     }
     let url1 = format!("{}11/{}.CSV", url, the_url_date);
     let path1 = format!("{}/Haus_{}.csv", path, the_url_date);
-    let haus = get_wandler_hour_sub(url1, path1);
+    let haus = get_wandler_hour_sub(url1, path1, tx);
 
     let url2 = format!("{}8/{}.CSV", url, the_url_date);
     let path2 = format!("{}/Garage_{}.csv", path, the_url_date);
-    let garage = get_wandler_hour_sub(url2, path2);
+    let garage = get_wandler_hour_sub(url2, path2, tx);
 
     #[cfg(debug_assertions)]
     println!("Wandler: {} {} {}", haus, garage, haus+garage);
 
-    send_message("HomeServer/Strom/HausDaily", haus.to_string(), tx);
-    send_message("HomeServer/Strom/GarageDaily", garage.to_string(), tx);
+    if haus >= 0.0 {
+        send_message("HomeServer/Strom/HausDaily", haus.to_string(), tx);
+    }
+    if garage >= 0.0 {
+        send_message("HomeServer/Strom/GarageDaily", garage.to_string(), tx);
+    }
     let total:f64 = ((garage+haus) * 100.0).round() / 100.0;
-    send_message("HomeServer/Strom/ProduktionDaily", total.to_string(), tx);    
+    if garage > 0.0 && haus > 0.0 {
+        send_message("HomeServer/Strom/ProduktionDaily", total.to_string(), tx);   
+    } 
 }
 
-fn get_wandler_day(inlocal: &DateTime<Local> )  {
+fn get_wandler_day(inlocal: &DateTime<Local>,  tx: &std::sync::mpsc::Sender<crate::Mymessage>)  {
     let local: DateTime<Local>  = *inlocal - TimeDelta::try_minutes(60).unwrap();
     let the_date: String = format!("{}", local.format("%Y-%b"));
     let the_url_date: String = format!("{}", local.format("%Y%m"));
@@ -129,15 +145,15 @@ fn get_wandler_day(inlocal: &DateTime<Local> )  {
 
     let url1 = format!("{}11/{}.CSV", url, the_url_date);
     let path1 = format!("{}/Haus_{}.csv", path, the_url_date);
-    get_wandler_month_sub(url1, path1);
+    get_wandler_month_sub(url1, path1, tx);
 
     let url2 = format!("{}8/{}.CSV", url, the_url_date);
     let path2 = format!("{}/Garage_{}.csv", path, the_url_date);
-    get_wandler_month_sub(url2, path2);
+    get_wandler_month_sub(url2, path2, tx);
 
   }
 
-fn get_wandler_month(inlocal: &DateTime<Local> )  {
+fn get_wandler_month(inlocal: &DateTime<Local>,  tx: &std::sync::mpsc::Sender<crate::Mymessage> )  {
     let local: DateTime<Local>  = *inlocal - TimeDelta::try_minutes(60).unwrap();
     let the_date: String = format!("{}", local.format("%Y"));
     let the_url_date: String = format!("{}", local.format("%Y"));
@@ -162,16 +178,17 @@ fn get_wandler_month(inlocal: &DateTime<Local> )  {
     if !Path::new(&path).exists() {
         fs::create_dir_all(&path).unwrap_or_else(|why| {
             println!("! {:?}", why.kind());
+            send_message("HomeServer/Error", format!("Error create dir {}", &path), tx);
         });     
     }
 
     let url1 = format!("{}11/{}.CSV", url, the_url_date);
     let path1 = format!("{}/Haus_{}.csv", path, the_url_date);
-    get_wandler_month_sub(url1, path1);
+    get_wandler_month_sub(url1, path1, tx);
 
     let url2 = format!("{}8/{}.CSV", url, the_url_date);
     let path2 = format!("{}/Garage_{}.csv", path, the_url_date);
-    get_wandler_month_sub(url2, path2);
+    get_wandler_month_sub(url2, path2, tx);
   }
 
 fn get_wandler(tx: &std::sync::mpsc::Sender<crate::Mymessage>) -> i32 {
@@ -204,12 +221,14 @@ fn get_wandler(tx: &std::sync::mpsc::Sender<crate::Mymessage>) -> i32 {
     if v.len() < 8 {
         #[cfg(debug_assertions)]
         println!("wandler11 zu kurz {}", v.len()); 
+        send_message("HomeServer/Error", format!("wandler11 zu kurz {}",  v.len()), tx);
         return 1;       
     }
 
     if v2.len() < 10 {
         #[cfg(debug_assertions)]
-        println!("wandler8 zu kurz {}", v.len());  
+        println!("wandler8 zu kurz {}", v2.len());  
+        send_message("HomeServer/Error", format!("wandler8 zu kurz {}",  v2.len()), tx);
         return 1;      
     }
 
@@ -272,11 +291,11 @@ pub fn do_wandler(tx: std::sync::mpsc::Sender<crate::Mymessage>) {
         }
         if local.day() != last_day {
             last_day = local.day();
-            get_wandler_day(&local);
+            get_wandler_day(&local, &tx);
         }        
         if local.month() != last_month {
             last_month = local.month();
-            get_wandler_month(&local);
+            get_wandler_month(&local, &tx);
         }  
     }
 
