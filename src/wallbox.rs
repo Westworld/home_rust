@@ -24,6 +24,9 @@ fn get_wallbox(tx: &std::sync::mpsc::Sender<crate::Mymessage>)  {
     if answer.starts_with("{\"") {
         let parsed = json::parse(answer.as_str()).unwrap();
         for topiccheck in check {
+            if parsed[topiccheck].is_null() {
+                return;
+            }
             let  thepayload: String ;
             if topiccheck == "nrg" {
                 let mut total: i32 = parsed["nrg"][11].as_i32().unwrap();

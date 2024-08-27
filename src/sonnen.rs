@@ -49,6 +49,9 @@ fn get_sonnen(tx: &std::sync::mpsc::Sender<crate::Mymessage>, subid:i32) -> bool
     if answer.starts_with("{\"") {
         let parsed = json::parse(answer.as_str()).unwrap();
         for topiccheck in check {
+            if parsed[topiccheck].is_null() {
+                return false;
+            }
             let answ1 = crate::Mymessage {
                 topic: String::from("HomeServer/Batterie/".to_owned()+topiccheck),
                 payload: parsed[topiccheck].to_string(),

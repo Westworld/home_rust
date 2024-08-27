@@ -26,6 +26,7 @@ pub mod fritz;
 pub mod sonnen;
 pub mod wallbox;
 pub mod wandler;
+pub mod wetter;
 
 fn main()  {
     let mqttclient: String;
@@ -48,6 +49,7 @@ fn main()  {
     let (client, mut connection) = Client::new(mqttoptions, 10);
     let (tx, rx) = mpsc::channel();
     
+    
     let tx2 = tx.clone();
     let _handle = thread::spawn( || {
             fritz::do_fritz(tx2);
@@ -67,6 +69,11 @@ fn main()  {
     let _handle = thread::spawn( || {
             wandler::do_wandler(tx5);
         });
+
+    let tx6 = tx.clone();
+    let _handle = thread::spawn( || {
+            wetter::do_wetter(tx6);
+    });
 
     loop {
         sleep(Duration::from_millis(100));

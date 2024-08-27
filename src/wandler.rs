@@ -120,7 +120,7 @@ fn get_wandler_hour(tx: &std::sync::mpsc::Sender<crate::Mymessage>, local: &Date
 
 fn get_wandler_day(inlocal: &DateTime<Local>,  tx: &std::sync::mpsc::Sender<crate::Mymessage>)  {
     let local: DateTime<Local>  = *inlocal - TimeDelta::try_minutes(60).unwrap();
-    let the_date: String = format!("{}", local.format("%Y-%b"));
+    let the_date: String = format!("{}", local.format("%Y"));
     let the_url_date: String = format!("{}", local.format("%Y%m"));
 
     #[cfg(debug_assertions)]
@@ -220,15 +220,15 @@ fn get_wandler(tx: &std::sync::mpsc::Sender<crate::Mymessage>) -> i32 {
 
     if v.len() < 8 {
         #[cfg(debug_assertions)]
-        println!("wandler11 zu kurz {}", v.len()); 
-        send_message("HomeServer/Error", format!("wandler11 zu kurz {}",  v.len()), tx);
+        println!("wandler11 zu kurz {} {}", v.len(), answer); 
+        send_message("HomeServer/Error", format!("wandler11 zu kurz {} {}",  v.len(), answer), tx);
         return 1;       
     }
 
     if v2.len() < 10 {
         #[cfg(debug_assertions)]
-        println!("wandler8 zu kurz {}", v2.len());  
-        send_message("HomeServer/Error", format!("wandler8 zu kurz {}",  v2.len()), tx);
+        println!("wandler8 zu kurz {} {}", v2.len(), answer2);  
+        send_message("HomeServer/Error", format!("wandler8 zu kurz {} {}",  v2.len(), answer2), tx);
         return 1;      
     }
 
@@ -281,7 +281,7 @@ pub fn do_wandler(tx: std::sync::mpsc::Sender<crate::Mymessage>) {
         sleep(Duration::from_secs(30));
         
         if get_wandler(&tx) == 0 {
-            sleep(Duration::from_secs(90));
+            //sleep(Duration::from_secs(90));
         }
 
         let local: DateTime<Local> = Local::now();
@@ -319,13 +319,8 @@ mod tests {
         let wh:i32 = whfloat as i32;
 
         println!("wh: {} whfloat: {}", wh, whfloat);
-        assert_eq!(whfloat, 148.0);
+        assert_eq!(wh, 148);
 
     }  
 
-    #[test]
-    fn testtime() {
-
-
-    }
 }
