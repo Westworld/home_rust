@@ -1,4 +1,4 @@
-use tokio::time::error::Elapsed;
+//use tokio::time::error::Elapsed;
 use std::thread::sleep;
 use std::time::{Duration};
 use serde::{Deserialize, Serialize};
@@ -92,7 +92,6 @@ fn parse_wetter(tx: &std::sync::mpsc::Sender<crate::Mymessage>, answer: String) 
             send_message("HomeServer/Wetter/rain", new_current.rain.to_string(), tx);
 
             let mut rain_forecast: Vec<f64> = Vec::new();
-
             let minutely = parsed["minutely"].clone();
             if minutely.is_array() {
                  for ele in minutely.members() {
@@ -102,6 +101,49 @@ fn parse_wetter(tx: &std::sync::mpsc::Sender<crate::Mymessage>, answer: String) 
     
             let rain_forecast_str = format!("{:?}", rain_forecast);
             send_message("HomeServer/Wetter/rainForecast", rain_forecast_str, tx);
+
+            let hourly = parsed["hourly"].clone();
+            if hourly.is_array() {
+                let new_current = get_wetter_sub(hourly[1].clone());
+                let serialized = serde_json::to_string(&new_current).unwrap();
+                send_message("HomeServer/Wetter/hour1", serialized, tx);
+ 
+                let new_current = get_wetter_sub(hourly[4].clone());
+                let serialized = serde_json::to_string(&new_current).unwrap();
+                send_message("HomeServer/Wetter/hour4", serialized, tx);
+
+                let new_current = get_wetter_sub(hourly[7].clone());
+                let serialized = serde_json::to_string(&new_current).unwrap();
+                send_message("HomeServer/Wetter/hour7", serialized, tx);
+
+                let new_current = get_wetter_sub(hourly[10].clone());
+                let serialized = serde_json::to_string(&new_current).unwrap();
+                send_message("HomeServer/Wetter/hour10", serialized, tx);
+
+                let new_current = get_wetter_sub(hourly[13].clone());
+                let serialized = serde_json::to_string(&new_current).unwrap();
+                send_message("HomeServer/Wetter/hour13", serialized, tx);                                                 
+
+                let new_current = get_wetter_sub(hourly[16].clone());
+                let serialized = serde_json::to_string(&new_current).unwrap();
+                send_message("HomeServer/Wetter/hour16", serialized, tx);
+
+                let new_current = get_wetter_sub(hourly[19].clone());
+                let serialized = serde_json::to_string(&new_current).unwrap();
+                send_message("HomeServer/Wetter/hour19", serialized, tx);
+
+                let new_current = get_wetter_sub(hourly[22].clone());
+                let serialized = serde_json::to_string(&new_current).unwrap();
+                send_message("HomeServer/Wetter/hour22", serialized, tx);                                                 
+ 
+                let mut temp_forecast: Vec<f64> = Vec::new();
+                for ele in hourly.members() {
+                    temp_forecast.push(ele["temp"].as_f64().expect("temp no number"));
+                }               
+                let temp_forecast_str = format!("{:?}", temp_forecast);
+                send_message("HomeServer/Wetter/tempForecast", temp_forecast_str, tx);
+            }
+            
 
             return;
         }
@@ -125,7 +167,7 @@ fn get_wetter(tx: &std::sync::mpsc::Sender<crate::Mymessage>)  {
 }
 
 pub fn do_wetter(tx: std::sync::mpsc::Sender<crate::Mymessage>) {
-    sleep(Duration::from_secs(100));
+    sleep(Duration::from_secs(100)); 
     loop {
         get_wetter(&tx);
         sleep(Duration::from_secs(1800));  // 30 min        

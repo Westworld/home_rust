@@ -70,6 +70,7 @@ fn main()  {
             wandler::do_wandler(tx5);
         });
 
+
     let tx6 = tx.clone();
     let _handle = thread::spawn( || {
             wetter::do_wetter(tx6);
