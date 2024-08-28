@@ -25,7 +25,10 @@
         "description": "Bedeckt",
         "icon": "04d"
       }
-    ]
+    ],
+    "rain": {
+    	"1h": 5
+    }
   },
   "minutely": [
     {

@@ -1,34 +1,10 @@
+use tokio::time::error::Elapsed;
 use std::thread::sleep;
 use std::time::{Duration};
-
 use serde::{Deserialize, Serialize};
-use serde_json::{Result, Value, json};
+use chrono::prelude::*;
 
-#[derive(Serialize, Deserialize)]
-struct Wetter {
- current: WCurrent,
-}
-
-#[derive(Serialize, Deserialize)]
-struct WCurrent {
-    temp: f64,
-    wind_speed: f64,
-    weather: Vec<WMain>,
-} 
-
-#[derive(Serialize, Deserialize)]
-struct WMain {
-    main: String,
-    description: String,
-    icon: String,
-}
-
-#[derive(Serialize, Deserialize)]
-struct Wrain {
-    "1h": f64,
- }
-
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 struct WCurrentNew {
     temp: i32,
     wind_speed: i32,
@@ -36,75 +12,103 @@ struct WCurrentNew {
     main: String,
     description: String,
     icon: String,
+    day: String,
+    hour: String,
 } 
 
-fn get_wetter_sub(current: WCurrent) -> WCurrentNew  {
-    let newcurrent = WCurrentNew {
-        wind_speed: (current.wind_speed * 3.6).round() as i32,
-        temp: current.temp.round() as i32,
-        rain: 0,
-        main: current.weather[0].main.clone(),
-        description: current.weather[0].description.clone(),
-        icon: current.weather[0].icon.clone(),
+fn send_message(the_topic: &str, the_payload:String, tx: &std::sync::mpsc::Sender<crate::Mymessage>) {
+    let answ1 = crate::Mymessage {
+        topic: String::from(the_topic),
+        payload: the_payload,
     };
-    return newcurrent;
-
-
-    /*
-
-	if (data.get("rain") is None):
-		now["rain"] = 0
-	else:
-		rain = data.get("rain")
-		now["rain"] = rain.get("1h")
-	dt = data.get("dt",0)
-	now["day"] = datetime.fromtimestamp(dt).strftime('%a')
-	now["hour"] = datetime.fromtimestamp(dt).strftime('%H:%M')
-	return now
-
-    */
+    if let Err(_) =  tx.send(answ1) {/* nothing */};    
 }
 
-fn parse_wetter(tx: &std::sync::mpsc::Sender<crate::Mymessage>, answer: String) {
-    let w_main = WMain {
+fn get_wetter_sub(current: json::JsonValue) -> WCurrentNew  {
+
+    let mut newcurrent = WCurrentNew {
+        wind_speed: 0,
+        temp: 0,
+        rain: 0,
         main: "".to_string(),
         description: "".to_string(),
         icon: "".to_string(),
+        day: "".to_string(),
+        hour: "".to_string(),
     };
-    let vw_main: Vec<WMain> = vec![w_main];
-    let w_current = WCurrent {
-        temp: -75.0,
-        wind_speed: 0.0,
-        weather: vw_main,
-    };
-    let wetter = Wetter {
-        current: w_current,
-    };
+
+    let result: Option<f64> =  current["temp"].as_f64();
+    if let Some(i) = result {
+        newcurrent.temp = i as i32;
+    } 
+
+    let result: Option<f64> =  current["wind_speed"].as_f64();
+    if let Some(i) = result {
+        newcurrent.wind_speed = (i * 3.6) as i32;
+    } 
+
+    let result: Option<f64> =  current["rain"]["1h"].as_f64();
+    if let Some(i) = result {
+        newcurrent.rain = i as u32;
+    } 
+    let result: Option<f64> =  current["snow"]["1h"].as_f64();
+    if let Some(i) = result {
+        newcurrent.rain = i as u32;
+    } 
+
+    newcurrent.main = current["weather"][0]["main"].to_string();
+    newcurrent.description = current["weather"][0]["description"].to_string();
+    newcurrent.icon = current["weather"][0]["icon"].to_string();
+
+    let local: DateTime<Local> = Local::now();
+    newcurrent.day = format!("{}", local.format("%a"));
+    newcurrent.hour = format!("{}", local.format("%H:%M"));
+
+    return newcurrent;
+
+}
+
+fn parse_wetter(tx: &std::sync::mpsc::Sender<crate::Mymessage>, answer: String) {
 
     if answer.starts_with("{") {
-        let parsed: Wetter = match serde_json::from_str (&answer) {
+
+        let parsed: json::JsonValue = match json::parse (&answer) {
             Ok (p) => p,
-            Err (_) => wetter,
+            Err (_) => return,
         };
 
-    let the_current = parsed.current;
-    let new_current = get_wetter_sub(the_current);
+        if !parsed["current"].is_null() {
+            let new_current = get_wetter_sub(parsed["current"].clone());
+        
+            #[cfg(debug_assertions)]
+            let serialized = serde_json::to_string(&new_current).unwrap();
+            println!("current: {}", serialized);
 
-        let j = serde_json::to_string(&new_current).unwrap();
-        println!("current: {}", j);
+            send_message("HomeServer/Wetter/temp", new_current.temp.to_string(), tx);
+            send_message("HomeServer/Wetter/wind", new_current.wind_speed.to_string(), tx);
+            send_message("HomeServer/Wetter/main", new_current.main, tx);
+            send_message("HomeServer/Wetter/description", new_current.description, tx);
+            send_message("HomeServer/Wetter/icon", new_current.icon, tx);
+            send_message("HomeServer/Wetter/rain", new_current.rain.to_string(), tx);
 
+            let mut rain_forecast: Vec<f64> = Vec::new();
 
-        /* 
-        for topiccheck in check {
-            let answ1 = crate::Mymessage {
-                topic: String::from("HomeServer/Batterie/".to_owned()+topiccheck),
-                payload: parsed[topiccheck].to_string(),
-            };
-            if let Err(_) =  tx.send(answ1) {/* nothing */};
+            let minutely = parsed["minutely"].clone();
+            if minutely.is_array() {
+                 for ele in minutely.members() {
+                    rain_forecast.push(ele["precipitation"].as_f64().expect("rain no number"));
+                }               
+            }
+    
+            let rain_forecast_str = format!("{:?}", rain_forecast);
+            send_message("HomeServer/Wetter/rainForecast", rain_forecast_str, tx);
+
+            return;
         }
-        */
-
     }
+    
+
+
 
 }
 
@@ -116,9 +120,6 @@ fn get_wetter(tx: &std::sync::mpsc::Sender<crate::Mymessage>)  {
     let url = format!("https://api.openweathermap.org/data/2.5/onecall?lat={}&lon={}&appid={}&units=metric&lang=DE",w_lat, w_lon, w_key);
 
     let answer : String = crate::http::get_request(&url.as_str(), 30);
-
-    #[cfg(debug_assertions)]
-    println!("wetter {}", answer);
 
     parse_wetter(tx, answer);
 }
@@ -145,15 +146,5 @@ mod tests {
 
         super::parse_wetter(&tx, answer);
 
-        /* 
-        let bytesin:i32;
-        let bytesout:i32;
-        (bytesin, bytesout) = super::do_parse(&result);
-
-        println!("parse: {} {}", bytesin, bytesout);
-
-        assert_eq!(bytesin, 8757);
-        assert_eq!(bytesout, 1007);
-        */
     }  
 }
