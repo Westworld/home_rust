@@ -82,6 +82,7 @@ fn parse_wetter(tx: &std::sync::mpsc::Sender<crate::Mymessage>, answer: String) 
         
             #[cfg(debug_assertions)]
             let serialized = serde_json::to_string(&new_current).unwrap();
+            #[cfg(debug_assertions)]
             println!("current: {}", serialized);
 
             send_message("HomeServer/Wetter/temp", new_current.temp.to_string(), tx);
