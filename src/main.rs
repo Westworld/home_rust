@@ -97,7 +97,10 @@ fn main()  {
                     let topic: String = "Debug/".to_string()+&msg.topic;
                     client.try_publish(topic, QoS::AtLeastOnce, true, msg.payload.as_bytes()).unwrap()
                 } else {
-                    client.try_publish(msg.topic, QoS::AtLeastOnce, true, msg.payload.as_bytes()).unwrap()
+                    if let Err(_) =  client.try_publish(msg.topic, QoS::AtLeastOnce, true, msg.payload.as_bytes()) {
+                        //nothing;
+                    }
+
                 }
                 
             },
