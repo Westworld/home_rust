@@ -376,7 +376,8 @@ fn get_smartmeter() -> Vec<u8> {
                     Err(e) => eprintln!("{:?}", e),
                 }
             }
-            return ergebnis[anfang..ende].to_vec();
+            let realend= anfang+ende;
+            return ergebnis[anfang..realend].to_vec();
 
         }
         Err(e) => {
