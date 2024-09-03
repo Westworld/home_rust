@@ -100,7 +100,7 @@ fn parse_einzel(block: String, tx: &std::sync::mpsc::Sender<crate::Mymessage>) {
                             #[cfg(debug_assertions)]
                             println!("S{}: {}", counter, gesamtwert);
 
-                            let topic = format!("HomeServer/Einzel/{}/State", &rooms[(counter-1) as usize]);
+                            let topic = format!("HomeServer/Einzel/{}/state", &rooms[(counter-1) as usize]);
                             send_message(&topic, gesamtwert.to_string(),  tx);
 
                             gesamt += gesamtwert;
