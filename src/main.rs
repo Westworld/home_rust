@@ -76,12 +76,12 @@ fn main()  {
     let _handle = thread::spawn( || {
             wetter::do_wetter(tx6);
     });
-/*
+
     let tx7 = tx.clone();
     let _handle = thread::spawn( || {
             strom::do_strom(tx7);
     });
- */   
+   
 
     loop {
         sleep(Duration::from_millis(100));

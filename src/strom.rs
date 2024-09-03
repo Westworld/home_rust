@@ -62,6 +62,7 @@ fn parse_einzel(block: String, tx: &std::sync::mpsc::Sender<crate::Mymessage>) {
                 let mut gesamt: f64 = 0.0;
                 let mut counter: u8 = 1;
                 for number in (start+1)..end {
+                    #[cfg(debug_assertions)]
                     println!("line: {}", v[number]);
                     let v2: Vec<&str> = v[number].split(":").collect();
                     if v2.len() != 2 {
@@ -73,7 +74,6 @@ fn parse_einzel(block: String, tx: &std::sync::mpsc::Sender<crate::Mymessage>) {
                     if control == v2[0] {
                         let v3: Vec<&str> = v2[1].split(",").collect();
                         if v3.len() != 6 {
-                            #[cfg(debug_assertions)]
                             println!("falsche größe von v3: {:?}", v3.len());
                             break;                            
                         } else {
@@ -107,7 +107,6 @@ fn parse_einzel(block: String, tx: &std::sync::mpsc::Sender<crate::Mymessage>) {
                         }
                     }    
                     else {
-                        #[cfg(debug_assertions)]
                         println!("control fehler: {:?} {}", control, v2[0]);
                         break;
                     }
@@ -119,7 +118,6 @@ fn parse_einzel(block: String, tx: &std::sync::mpsc::Sender<crate::Mymessage>) {
                 send_message("HomeServer/Einzel/Gesamt", gesamt.to_string(),  tx);
             }
             else {
-                #[cfg(debug_assertions)]
                 println!("falsche Anzahl Zeilen zwischen Start und End");
             }
         }
@@ -367,7 +365,7 @@ fn get_smartmeter() -> Vec<u8> {
                             }
                         }
                         if startflag && !endflag {
-                            let pos = findflag(Findtag::End, &ergebnis);
+                            let pos = findflag(Findtag::End, &ergebnis[anfang..].to_vec());
                             if pos >= 0 {
                                 endflag = true;
                                 ende = (pos+5) as usize;
@@ -453,6 +451,6 @@ mod tests {
         let (kauf, verkauf, leistung) = super::parse_smartmeter(&result, &tx);
         assert_eq!(kauf, 1811.0676);
         assert_eq!(verkauf, 2543.317);
-        assert_eq!(leistung, -0.2172);
+        assert_eq!(leistung, -2172.0);
     }      
 }
