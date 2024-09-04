@@ -3,6 +3,8 @@ use std::io::{self, Write};
 use std::thread::sleep;
 use std::time::{Duration};
 use chrono::prelude::*;
+use std::fs::OpenOptions;
+use std::io::prelude::*;
 
 // SML Protocol http://www.stefan-weigert.de/php_loader/sml.php
 // https://wiki.volkszaehler.org/hardware/channels/meters/power/edl-ehz/emh-ehz-h1
@@ -100,7 +102,7 @@ fn parse_einzel(block: String, tx: &std::sync::mpsc::Sender<crate::Mymessage>) {
                             #[cfg(debug_assertions)]
                             println!("S{}: {}", counter, gesamtwert);
 
-                            let topic = format!("HomeServer/Einzel/{}/state", &rooms[(counter-1) as usize]);
+                            let topic = format!("HomeServer/Einzel/{}/state", &rooms[(counter) as usize]);
                             send_message(&topic, gesamtwert.to_string(),  tx);
 
                             gesamt += gesamtwert;
@@ -394,8 +396,76 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
 
     //sleep(Duration::from_secs(15));
 
+    let mut lastday: u32;
+    let mut file: std::fs::File;
+
+    // this is only to init it, to avoid rust complaining about none initialisied
+    let local: DateTime<Local> = Local::now();
+
+    // new day
+    lastday = local.day();
+
+    let the_date: String = format!("{}", local.format("%Y-%b"));
+    let the_url_date: String = format!("{}", local.format("%Y%m%d"));
+    let path: String;
+    let hostname = env!("HOSTNAME");
+    if hostname != "Thomas_test" {
+        path = "/home/pi/Strom/Day/".to_string()+&the_date;
+    }
+    else {
+        path = "/Users/thomas/documents/rust/Strom/Day/".to_string()+&the_date;
+    }  
+    let path1 = format!("{}/Strom_{}.csv", path, the_url_date);
+    
+    match OpenOptions::new()
+        .write(true)
+        .append(true)
+        .open(path1){
+            Ok(t) => {
+                file = t;
+            }
+            Err(e) => {
+                eprintln!("{:?}", e);
+                return;
+            }               
+        }
+
+
+
     loop {
         let local: DateTime<Local> = Local::now();
+
+        if lastday != local.day() {
+            // new day
+            lastday = local.day();
+
+            let the_date: String = format!("{}", local.format("%Y-%b"));
+            let the_url_date: String = format!("{}", local.format("%Y%m%d"));
+            let path: String;
+            let hostname = env!("HOSTNAME");
+            if hostname != "Thomas_test" {
+                path = "/home/pi/Strom/Day/".to_string()+&the_date;
+            }
+            else {
+                path = "/Users/thomas/documents/rust/Strom/Day/".to_string()+&the_date;
+            }  
+            let path1 = format!("{}/Strom_{}.csv", path, the_url_date);
+            
+            match OpenOptions::new()
+                .write(true)
+                .append(true)
+                .open(path1){
+                    Ok(t) => {
+                        file = t;
+                    }
+                    Err(e) => {
+                        eprintln!("{:?}", e);
+                        return;
+                    }               
+                }
+        }
+
+
         let second = local.second();
         if (second == 0) || (second == 30) {
             let einzel_daten = get_einzel();
@@ -417,6 +487,12 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
             let (kauf, verkauf, leistung) = parse_smartmeter(&smart_daten, &tx);
             #[cfg(debug_assertions)]
             println!("Kauf: {}, Verkauf: {}, Leistung: {}", kauf, verkauf, leistung);
+
+            let dt_string = local.format("%d/%m/%Y %H:%M:%S");
+
+            if let Err(e) = writeln!(file, "{}\t\t{}\t{}\t{}", dt_string, kauf, verkauf, leistung) {
+                eprintln!("Couldn't write to file: {}", e);
+            }
 
         }
 
