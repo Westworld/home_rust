@@ -420,7 +420,7 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
     match OpenOptions::new()
         .write(true)
         .append(true)
-        .open(path1){
+        .open(&path1){
             Ok(t) => {
                 file = t;
             }
@@ -454,7 +454,7 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
             match OpenOptions::new()
                 .write(true)
                 .append(true)
-                .open(path1){
+                .open(&path1){
                     Ok(t) => {
                         file = t;
                     }
