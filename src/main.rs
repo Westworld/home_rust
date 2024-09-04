@@ -12,8 +12,10 @@ use std::sync::mpsc;
 // test:  cargo test -- --nocapture
 // final: cargo build --release     // binary in target/release
 // kill old running build on raspi first
-// ps ax | grep -v grep | grep home_rust
+// ps ax | grep -v grep | grep http_test
 // sudo nohup /home/pi/rust/home_rust/target/release/http_test &
+
+// cp /home/pi/rust/home_rust/target/release/http_test /home/pi/http_test_backup
 
 
 pub struct Mymessage {

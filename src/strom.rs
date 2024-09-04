@@ -425,7 +425,7 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
                 file = t;
             }
             Err(e) => {
-                eprintln!("{:?}", e);
+                eprintln!("{:?} {}", e, path1);
                 return;
             }               
         }
@@ -459,7 +459,7 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
                         file = t;
                     }
                     Err(e) => {
-                        eprintln!("{:?}", e);
+                        eprintln!("{:?} {}", e, path1);
                         return;
                     }               
                 }
