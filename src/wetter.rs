@@ -124,31 +124,31 @@ fn parse_wetter(tx: &std::sync::mpsc::Sender<crate::Mymessage>, answer: String) 
  
                 let new_current = get_wetter_sub(hourly[4].clone());
                 let serialized = serde_json::to_string(&new_current).unwrap();
-                send_message("HomeServer/Wetter/hour4", serialized, tx);
+                send_message("HomeServer/Wetter/hour2", serialized, tx);
 
                 let new_current = get_wetter_sub(hourly[7].clone());
                 let serialized = serde_json::to_string(&new_current).unwrap();
-                send_message("HomeServer/Wetter/hour7", serialized, tx);
+                send_message("HomeServer/Wetter/hour3", serialized, tx);
 
                 let new_current = get_wetter_sub(hourly[10].clone());
                 let serialized = serde_json::to_string(&new_current).unwrap();
-                send_message("HomeServer/Wetter/hour10", serialized, tx);
+                send_message("HomeServer/Wetter/hour4", serialized, tx);
 
                 let new_current = get_wetter_sub(hourly[13].clone());
                 let serialized = serde_json::to_string(&new_current).unwrap();
-                send_message("HomeServer/Wetter/hour13", serialized, tx);                                                 
+                send_message("HomeServer/Wetter/hour5", serialized, tx);                                                 
 
                 let new_current = get_wetter_sub(hourly[16].clone());
                 let serialized = serde_json::to_string(&new_current).unwrap();
-                send_message("HomeServer/Wetter/hour16", serialized, tx);
+                send_message("HomeServer/Wetter/hour6", serialized, tx);
 
                 let new_current = get_wetter_sub(hourly[19].clone());
                 let serialized = serde_json::to_string(&new_current).unwrap();
-                send_message("HomeServer/Wetter/hour19", serialized, tx);
+                send_message("HomeServer/Wetter/hour7", serialized, tx);
 
                 let new_current = get_wetter_sub(hourly[22].clone());
                 let serialized = serde_json::to_string(&new_current).unwrap();
-                send_message("HomeServer/Wetter/hour22", serialized, tx);                                                 
+                send_message("HomeServer/Wetter/hour8", serialized, tx);                                                 
  
                 let mut temp_forecast: Vec<f64> = Vec::new();
                 for ele in hourly.members() {
