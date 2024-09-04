@@ -420,6 +420,7 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
     match OpenOptions::new()
         .write(true)
         .append(true)
+        .create(true)
         .open(&path1){
             Ok(t) => {
                 file = t;
@@ -454,6 +455,7 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
             match OpenOptions::new()
                 .write(true)
                 .append(true)
+                .create(true)
                 .open(&path1){
                     Ok(t) => {
                         file = t;
@@ -489,7 +491,7 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
             println!("Kauf: {}, Verkauf: {}, Leistung: {}", kauf, verkauf, leistung);
 
             let dt_string = local.format("%d/%m/%Y %H:%M:%S");
-            if kauf !=0.0 && verkauf != 0.0 {
+            if (kauf !=0.0) && (verkauf != 0.0) {
                 if let Err(e) = writeln!(file, "{}\t\t{}\t{}\t{}", dt_string, kauf, verkauf, leistung) {
                     eprintln!("Couldn't write to file: {}", e);
                 }
