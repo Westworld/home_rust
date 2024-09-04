@@ -1,3 +1,4 @@
+//use core::time;
 //use tokio::time::error::Elapsed;
 use std::thread::sleep;
 use std::time::{Duration};
@@ -60,7 +61,19 @@ fn get_wetter_sub(current: json::JsonValue) -> WCurrentNew  {
     newcurrent.description = current["weather"][0]["description"].to_string();
     newcurrent.icon = current["weather"][0]["icon"].to_string();
 
-    let local: DateTime<Local> = Local::now();
+        // Convert the timestamp string into an i64
+    let timestamp: i64;
+    let result = current["dt"].as_i64();
+    if let Some(i) = result {
+        timestamp = i;
+    } else {
+        timestamp = 0;
+    }
+
+    let utc = DateTime::from_timestamp(timestamp, 0).unwrap();
+    let local: DateTime<Local> = DateTime::from(utc);
+
+    //let local: DateTime<Local> = Local::now();
     newcurrent.day = format!("{}", local.format("%a"));
     newcurrent.hour = format!("{}", local.format("%H:%M"));
 
