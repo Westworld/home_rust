@@ -477,7 +477,7 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
             let (kauf, verkauf, leistung) = parse_smartmeter(&smart_daten, &tx);
             #[cfg(debug_assertions)]
             println!("Kauf: {}, Verkauf: {}, Leistung: {}", kauf, verkauf, leistung);
-
+            sleep(Duration::from_millis(1000));
         }
 
         if (second == 15) || (second == 45) {
@@ -489,10 +489,12 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
             println!("Kauf: {}, Verkauf: {}, Leistung: {}", kauf, verkauf, leistung);
 
             let dt_string = local.format("%d/%m/%Y %H:%M:%S");
-
-            if let Err(e) = writeln!(file, "{}\t\t{}\t{}\t{}", dt_string, kauf, verkauf, leistung) {
-                eprintln!("Couldn't write to file: {}", e);
+            if kauf !=0.0 && verkauf != 0.0 {
+                if let Err(e) = writeln!(file, "{}\t\t{}\t{}\t{}", dt_string, kauf, verkauf, leistung) {
+                    eprintln!("Couldn't write to file: {}", e);
+                }
             }
+            sleep(Duration::from_millis(1000));
 
         }
 
