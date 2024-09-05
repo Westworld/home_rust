@@ -30,6 +30,7 @@ pub mod wallbox;
 pub mod wandler;
 pub mod wetter;
 pub mod strom;
+pub mod udplog;
 
 fn main()  {
     let mqttclient: String;
@@ -52,35 +53,38 @@ fn main()  {
     let (client, mut connection) = Client::new(mqttoptions, 10);
     let (tx, rx) = mpsc::channel();
     
-    
-    let tx2 = tx.clone();
     let _handle = thread::spawn( || {
+        udplog::do_udp();
+    });
+
+    let tx2 = tx.clone();
+    let _handle2 = thread::spawn( || {
             fritz::do_fritz(tx2);
         });
 
     let tx3 = tx.clone();
-    let _handle = thread::spawn( || {
+    let _handle3 = thread::spawn( || {
             sonnen::do_sonnen(tx3);
         });
 
     let tx4 = tx.clone();
-    let _handle = thread::spawn( || {
+    let _handle4 = thread::spawn( || {
             wallbox::do_wallbox(tx4);
         });
 
     let tx5 = tx.clone();
-    let _handle = thread::spawn( || {
+    let _handle5 = thread::spawn( || {
             wandler::do_wandler(tx5);
         });
 
 
     let tx6 = tx.clone();
-    let _handle = thread::spawn( || {
+    let _handle6 = thread::spawn( || {
             wetter::do_wetter(tx6);
     });
 
     let tx7 = tx.clone();
-    let _handle = thread::spawn( || {
+    let _handle7 = thread::spawn( || {
             strom::do_strom(tx7);
     });
    
