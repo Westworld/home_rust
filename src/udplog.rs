@@ -22,10 +22,10 @@ pub fn do_udp() {
     let path: &str;
     let hostname = env!("HOSTNAME");  // compile time!!!
     if hostname != "Thomas_test" {
-         path = "user/thomas/udplog.txt";
+         path = "/home/pi/udplog.txt";
     }
     else {
-        path = "/home/pi/udplog.txt";
+        path = "user/thomas/udplog.txt";
     }
 
     match OpenOptions::new()
