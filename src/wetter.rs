@@ -198,9 +198,9 @@ mod tests {
         let answer = std::fs::read_to_string(file_path)
         .expect("Should have been able to read the file");
 
-        let (tx, rx) = crate::mpsc::channel();
+        let (_tx, _rx) = crate::mpsc::channel();
 
-        super::parse_wetter(&tx, answer);
+        super::parse_wetter(&_tx, answer);
 
     }  
 }

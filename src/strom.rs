@@ -515,9 +515,9 @@ mod tests {
         let result = std::fs::read_to_string(file_path)
         .expect("Should have been able to read the file");
         
-        let (tx, rx) = crate::mpsc::channel();
+        let (_tx, _rx) = crate::mpsc::channel();
 
-        super::parse_einzel(result, &tx);
+        super::parse_einzel(result, &_tx);
 
     }  
 
@@ -527,9 +527,9 @@ mod tests {
         let result = std::fs::read(file_path)
         .expect("Should have been able to read the file");
 
-        let (tx, rx) = crate::mpsc::channel();
+        let (_tx, _rx) = crate::mpsc::channel();
 
-        let (kauf, verkauf, leistung) = super::parse_smartmeter(&result, &tx);
+        let (kauf, verkauf, leistung) = super::parse_smartmeter(&result, &_tx);
         assert_eq!(kauf, 1811.0676);
         assert_eq!(verkauf, 2543.317);
         assert_eq!(leistung, -2172.0);

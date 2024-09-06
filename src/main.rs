@@ -9,7 +9,7 @@ use std::sync::mpsc;
 
 // compile: cargo build
 // test: cargo run
-// test:  cargo test -- --nocapture
+// test:  cargo test -- --nocapture muell::tests::testmuell
 // final: cargo build --release     // binary in target/release
 // kill old running build on raspi first
 // ps ax | grep -v grep | grep http_test
@@ -31,6 +31,7 @@ pub mod wandler;
 pub mod wetter;
 pub mod strom;
 pub mod udplog;
+pub mod muell;
 
 fn main()  {
     let mqttclient: String;
@@ -88,6 +89,10 @@ fn main()  {
             strom::do_strom(tx7);
     });
    
+    let tx8 = tx.clone();
+    let _handle8 = thread::spawn( || {
+            muell::do_muell(tx8);
+    });
 
     loop {
         sleep(Duration::from_millis(100));

@@ -75,6 +75,8 @@ pub fn do_udp() {
         let local: DateTime<Local> = Local::now();
         let dt_string = local.format("%d/%m/%Y %H:%M:%S");
         let log = format!("{}\t{}\t{}", dt_string, src, message);
+        
+        #[cfg(debug_assertions)]
         println!("{}", log);
 
         if let Err(e) = writeln!(file, "{}", log) {
