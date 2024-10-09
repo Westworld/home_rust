@@ -14,13 +14,6 @@ fn calc_pv(wert: &str) -> i32 {
     return wh;
 }
 
-fn send_message(the_topic: &str, the_payload:String, tx: &std::sync::mpsc::Sender<crate::Mymessage>) {
-    let answ1 = crate::Mymessage {
-        topic: String::from(the_topic),
-        payload: the_payload,
-    };
-    if let Err(_) =  tx.send(answ1) {/* nothing */};    
-}
 
 fn get_wandler_hour_sub(url: String, path: String, tx: &std::sync::mpsc::Sender<crate::Mymessage>) ->f64 {
     let answer : String = crate::http::get_request(&url, 25);
@@ -31,13 +24,13 @@ fn get_wandler_hour_sub(url: String, path: String, tx: &std::sync::mpsc::Sender<
         if let Err(_) = fs::write(&path, &answer) {
             #[cfg(debug_assertions)]
             println!("Error write File {}", &path);
-            send_message("HomeServer/Error", format!("Error write File {}", &path), tx);
+            crate::send_message("HomeServer/Error", format!("Error write File {}", &path), tx);
         }
     }
     else {
         #[cfg(debug_assertions)]
         println!("error url request {}", url);
-        send_message("HomeServer/Error", format!("Error url request {}", &url), tx);
+        crate::send_message("HomeServer/Error", format!("Error url request {}", &url), tx);
     }
 
     let v: Vec<&str> = answer.split('\r').collect();
@@ -61,13 +54,13 @@ fn get_wandler_month_sub(url: String, path: String, tx: &std::sync::mpsc::Sender
         if let Err(_) = fs::write(&path, &answer) {
             #[cfg(debug_assertions)]
             println!("Error write File {}", &path);
-            send_message("HomeServer/Error", format!("Error write File {}", &path), tx);
+            crate::send_message("HomeServer/Error", format!("Error write File {}", &path), tx);
         }
     }
     else {
         #[cfg(debug_assertions)]
         println!("error url request {}", url);
-        send_message("HomeServer/Error", format!("Error url request {}", &url), tx);
+        crate::send_message("HomeServer/Error", format!("Error url request {}", &url), tx);
     }
 }
 
@@ -107,14 +100,14 @@ fn get_wandler_hour(tx: &std::sync::mpsc::Sender<crate::Mymessage>, local: &Date
     println!("Wandler: {} {} {}", haus, garage, haus+garage);
 
     if haus >= 0.0 {
-        send_message("HomeServer/Strom/HausDaily", haus.to_string(), tx);
+        crate::send_message("HomeServer/Strom/HausDaily", haus.to_string(), tx);
     }
     if garage >= 0.0 {
-        send_message("HomeServer/Strom/GarageDaily", garage.to_string(), tx);
+        crate::send_message("HomeServer/Strom/GarageDaily", garage.to_string(), tx);
     }
     let total:f64 = ((garage+haus) * 100.0).round() / 100.0;
     if garage > 0.0 && haus > 0.0 {
-        send_message("HomeServer/Strom/ProduktionDaily", total.to_string(), tx);   
+        crate::send_message("HomeServer/Strom/ProduktionDaily", total.to_string(), tx);   
     } 
 }
 
@@ -178,7 +171,7 @@ fn get_wandler_month(inlocal: &DateTime<Local>,  tx: &std::sync::mpsc::Sender<cr
     if !Path::new(&path).exists() {
         fs::create_dir_all(&path).unwrap_or_else(|why| {
             println!("! {:?}", why.kind());
-            send_message("HomeServer/Error", format!("Error create dir {}", &path), tx);
+            crate::send_message("HomeServer/Error", format!("Error create dir {}", &path), tx);
         });     
     }
 
@@ -221,14 +214,14 @@ fn get_wandler(tx: &std::sync::mpsc::Sender<crate::Mymessage>) -> i32 {
     if v.len() < 8 {
         #[cfg(debug_assertions)]
         println!("wandler11 zu kurz {} {}", v.len(), answer); 
-        send_message("HomeServer/Error", format!("wandler11 zu kurz {} {}",  v.len(), answer), tx);
+        crate::send_message("HomeServer/Error", format!("wandler11 zu kurz {} {}",  v.len(), answer), tx);
         return 1;       
     }
 
     if v2.len() < 10 {
         #[cfg(debug_assertions)]
         println!("wandler8 zu kurz {} {}", v2.len(), answer2);  
-        send_message("HomeServer/Error", format!("wandler8 zu kurz {} {}",  v2.len(), answer2), tx);
+        crate::send_message("HomeServer/Error", format!("wandler8 zu kurz {} {}",  v2.len(), answer2), tx);
         return 1;      
     }
 
@@ -253,11 +246,11 @@ fn get_wandler(tx: &std::sync::mpsc::Sender<crate::Mymessage>) -> i32 {
 
     let total:i32 = wg+wh;
 
-    send_message("HomeServer/Strom/Dach", wh.to_string(), tx);
-    send_message("HomeServer/Strom/Garage", wg.to_string(), tx);
-    send_message("HomeServer/Strom/GarageN", wg_n.to_string(), tx);
-    send_message("HomeServer/Strom/GarageS", wg_s.to_string(), tx);
-    send_message("HomeServer/Strom/Produktion", total.to_string(), tx);
+    crate::send_message("HomeServer/Strom/Dach", wh.to_string(), tx);
+    crate::send_message("HomeServer/Strom/Garage", wg.to_string(), tx);
+    crate::send_message("HomeServer/Strom/GarageN", wg_n.to_string(), tx);
+    crate::send_message("HomeServer/Strom/GarageS", wg_s.to_string(), tx);
+    crate::send_message("HomeServer/Strom/Produktion", total.to_string(), tx);
      
     return total;
 }

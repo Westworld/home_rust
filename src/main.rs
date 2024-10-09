@@ -33,6 +33,22 @@ pub mod strom;
 pub mod udplog;
 pub mod muell;
 
+fn send_message(the_topic: &str, the_payload:String, tx: &std::sync::mpsc::Sender<crate::Mymessage>) {
+    let hostname = env!("HOSTNAME");
+    if hostname != "Thomas_test" {
+        let answ1 = crate::Mymessage {
+            topic: String::from(the_topic),
+            payload: the_payload,
+        };
+        if let Err(_) =  tx.send(answ1) {/* nothing */}; 
+    }
+    else {
+        println!("{}", the_payload);
+    }
+
+   
+}
+
 fn main()  {
     let mqttclient: String;
     let hostname = env!("HOSTNAME");  // compile time!!!

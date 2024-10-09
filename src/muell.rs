@@ -6,21 +6,6 @@ use std::time::{Duration};
 use chrono::prelude::*;
 use std::thread::sleep;
 
-fn send_message(the_topic: &str, the_payload:String, tx: &std::sync::mpsc::Sender<crate::Mymessage>) {
-    let hostname = env!("HOSTNAME");
-    if hostname != "Thomas_test" {
-        let answ1 = crate::Mymessage {
-            topic: String::from(the_topic),
-            payload: the_payload,
-        };
-        if let Err(_) =  tx.send(answ1) {/* nothing */}; 
-    }
-    else {
-        println!("{}", the_payload);
-    }
-
-   
-}
 
 fn run_muell(tx: &std::sync::mpsc::Sender<crate::Mymessage>) {
     let path: &str;
@@ -70,17 +55,17 @@ fn run_muell(tx: &std::sync::mpsc::Sender<crate::Mymessage>) {
                     }
 
                     if date.is_empty() && summary.is_empty() {
-                        send_message("display/muell", "-".to_string(), tx);
+                        crate::send_message("display/muell", "-".to_string(), tx);
                     }
                     else 
                     {
                         // wenn date = heute und heute vor 12 Uhr oder date = morgen
                         if (date == dt_heute) || (date == dt_morgen) {
                             if date == dt_heute && local.hour() >= 10 {
-                                send_message("display/muell", "-".to_string(), tx);
+                                crate::send_message("display/muell", "-".to_string(), tx);
                             } else 
                             {
-                                send_message("display/muell", summary, tx);
+                                crate::send_message("display/muell", summary, tx);
                             }     
                         }
                     }

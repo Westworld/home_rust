@@ -17,13 +17,6 @@ struct WCurrentNew {
     hour: String,
 } 
 
-fn send_message(the_topic: &str, the_payload:String, tx: &std::sync::mpsc::Sender<crate::Mymessage>) {
-    let answ1 = crate::Mymessage {
-        topic: String::from(the_topic),
-        payload: the_payload,
-    };
-    if let Err(_) =  tx.send(answ1) {/* nothing */};    
-}
 
 fn get_wetter_sub(current: json::JsonValue) -> WCurrentNew  {
 
@@ -98,12 +91,12 @@ fn parse_wetter(tx: &std::sync::mpsc::Sender<crate::Mymessage>, answer: String) 
             #[cfg(debug_assertions)]
             println!("current: {}", serialized);
 
-            send_message("HomeServer/Wetter/temp", new_current.temp.to_string(), tx);
-            send_message("HomeServer/Wetter/wind", new_current.wind_speed.to_string(), tx);
-            send_message("HomeServer/Wetter/main", new_current.main, tx);
-            send_message("HomeServer/Wetter/description", new_current.description, tx);
-            send_message("HomeServer/Wetter/icon", new_current.icon, tx);
-            send_message("HomeServer/Wetter/rain", new_current.rain.to_string(), tx);
+            crate::send_message("HomeServer/Wetter/temp", new_current.temp.to_string(), tx);
+            crate::send_message("HomeServer/Wetter/wind", new_current.wind_speed.to_string(), tx);
+            crate::send_message("HomeServer/Wetter/main", new_current.main, tx);
+            crate::send_message("HomeServer/Wetter/description", new_current.description, tx);
+            crate::send_message("HomeServer/Wetter/icon", new_current.icon, tx);
+            crate::send_message("HomeServer/Wetter/rain", new_current.rain.to_string(), tx);
 
             let mut rain_forecast: Vec<f64> = Vec::new();
             let minutely = parsed["minutely"].clone();
@@ -114,48 +107,48 @@ fn parse_wetter(tx: &std::sync::mpsc::Sender<crate::Mymessage>, answer: String) 
             }
     
             let rain_forecast_str = format!("{:?}", rain_forecast);
-            send_message("HomeServer/Wetter/rainForecast", rain_forecast_str, tx);
+            crate::send_message("HomeServer/Wetter/rainForecast", rain_forecast_str, tx);
 
             let hourly = parsed["hourly"].clone();
             if hourly.is_array() {
                 let new_current = get_wetter_sub(hourly[1].clone());
                 let serialized = serde_json::to_string(&new_current).unwrap();
-                send_message("HomeServer/Wetter/hour1", serialized, tx);
+                crate::send_message("HomeServer/Wetter/hour1", serialized, tx);
  
                 let new_current = get_wetter_sub(hourly[4].clone());
                 let serialized = serde_json::to_string(&new_current).unwrap();
-                send_message("HomeServer/Wetter/hour2", serialized, tx);
+                crate::send_message("HomeServer/Wetter/hour2", serialized, tx);
 
                 let new_current = get_wetter_sub(hourly[7].clone());
                 let serialized = serde_json::to_string(&new_current).unwrap();
-                send_message("HomeServer/Wetter/hour3", serialized, tx);
+                crate::send_message("HomeServer/Wetter/hour3", serialized, tx);
 
                 let new_current = get_wetter_sub(hourly[10].clone());
                 let serialized = serde_json::to_string(&new_current).unwrap();
-                send_message("HomeServer/Wetter/hour4", serialized, tx);
+                crate::send_message("HomeServer/Wetter/hour4", serialized, tx);
 
                 let new_current = get_wetter_sub(hourly[13].clone());
                 let serialized = serde_json::to_string(&new_current).unwrap();
-                send_message("HomeServer/Wetter/hour5", serialized, tx);                                                 
+                crate::send_message("HomeServer/Wetter/hour5", serialized, tx);                                                 
 
                 let new_current = get_wetter_sub(hourly[16].clone());
                 let serialized = serde_json::to_string(&new_current).unwrap();
-                send_message("HomeServer/Wetter/hour6", serialized, tx);
+                crate::send_message("HomeServer/Wetter/hour6", serialized, tx);
 
                 let new_current = get_wetter_sub(hourly[19].clone());
                 let serialized = serde_json::to_string(&new_current).unwrap();
-                send_message("HomeServer/Wetter/hour7", serialized, tx);
+                crate::send_message("HomeServer/Wetter/hour7", serialized, tx);
 
                 let new_current = get_wetter_sub(hourly[22].clone());
                 let serialized = serde_json::to_string(&new_current).unwrap();
-                send_message("HomeServer/Wetter/hour8", serialized, tx);                                                 
+                crate::send_message("HomeServer/Wetter/hour8", serialized, tx);                                                 
  
                 let mut temp_forecast: Vec<f64> = Vec::new();
                 for ele in hourly.members() {
                     temp_forecast.push(ele["temp"].as_f64().expect("temp no number"));
                 }               
                 let temp_forecast_str = format!("{:?}", temp_forecast);
-                send_message("HomeServer/Wetter/tempForecast", temp_forecast_str, tx);
+                crate::send_message("HomeServer/Wetter/tempForecast", temp_forecast_str, tx);
             }
             
 
@@ -173,7 +166,7 @@ fn get_wetter(tx: &std::sync::mpsc::Sender<crate::Mymessage>)  {
     let w_key  = env!("w_key");
     let w_lat  = env!("w_lat");
     let w_lon  = env!("w_lon");
-    let url = format!("https://api.openweathermap.org/data/2.5/onecall?lat={}&lon={}&appid={}&units=metric&lang=DE",w_lat, w_lon, w_key);
+    let url = format!("https://api.openweathermap.org/data/3.0/onecall?lat={}&lon={}&appid={}&units=metric&lang=DE",w_lat, w_lon, w_key);
 
     let answer : String = crate::http::get_request(&url.as_str(), 30);
 
@@ -184,7 +177,7 @@ pub fn do_wetter(tx: std::sync::mpsc::Sender<crate::Mymessage>) {
     sleep(Duration::from_secs(100)); 
     loop {
         get_wetter(&tx);
-        sleep(Duration::from_secs(1800));  // 30 min        
+        sleep(Duration::from_secs(900));  // 30 min        
     }
 }
 

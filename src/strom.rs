@@ -38,14 +38,6 @@ Found 3 ports:
     }
 
 
-    fn send_message(the_topic: &str, the_payload:String, tx: &std::sync::mpsc::Sender<crate::Mymessage>) {
-        let answ1 = crate::Mymessage {
-            topic: String::from(the_topic),
-            payload: the_payload,
-        };
-        if let Err(_) =  tx.send(answ1) {/* nothing */};    
-    }
-
 
 fn parse_einzel(block: String, tx: &std::sync::mpsc::Sender<crate::Mymessage>) {
     // zerlege block in Zeilen
@@ -103,7 +95,7 @@ fn parse_einzel(block: String, tx: &std::sync::mpsc::Sender<crate::Mymessage>) {
                             println!("S{}: {}", counter, gesamtwert);
 
                             let topic = format!("HomeServer/Einzel/{}/state", &rooms[(counter) as usize]);
-                            send_message(&topic, gesamtwert.to_string(),  tx);
+                            crate::send_message(&topic, gesamtwert.to_string(),  tx);
 
                             gesamt += gesamtwert;
                         }
@@ -117,7 +109,7 @@ fn parse_einzel(block: String, tx: &std::sync::mpsc::Sender<crate::Mymessage>) {
                 #[cfg(debug_assertions)]
                 println!("gesamt {}", gesamt);
 
-                send_message("HomeServer/Einzel/Gesamt", gesamt.to_string(),  tx);
+                crate::send_message("HomeServer/Einzel/Gesamt", gesamt.to_string(),  tx);
             }
             else {
                 println!("falsche Anzahl Zeilen zwischen Start und End");
@@ -252,6 +244,7 @@ fn get_smart_value(data: &Vec<u8>) -> f64 {
                     let result: i64 = hex_to_int(&data[1..=8], 64);
                     return result as f64;
                 } else {
+                    #[cfg(debug_assertions)]
                     println!("unbekannte länge = {}, sign = {}", length, sign);
                     return 0.0;
                 }
@@ -323,9 +316,9 @@ fn parse_smartmeter(data: &Vec<u8>, tx: &std::sync::mpsc::Sender<crate::Mymessag
         leistung = get_smart_value(&value);
     }                                
 
-    send_message("HomeServer/Strom/Kauf", kauf.to_string(),  tx);
-    send_message("HomeServer/Strom/Verkauf", verkauf.to_string(),  tx);
-    send_message("HomeServer/Strom/Leistung", leistung.to_string(),  tx);
+    crate::send_message("HomeServer/Strom/Kauf", kauf.to_string(),  tx);
+    crate::send_message("HomeServer/Strom/Verkauf", verkauf.to_string(),  tx);
+    crate::send_message("HomeServer/Strom/Leistung", leistung.to_string(),  tx);
 
     return (kauf, verkauf, leistung);
 }
@@ -476,9 +469,9 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
             let smart_daten = get_smartmeter();
             //fs::write("smartmeter.txt", &smart_daten).unwrap();
             //println!("smartmeter geschrieben");
-            let (kauf, verkauf, leistung) = parse_smartmeter(&smart_daten, &tx);
+            let (_kauf, _verkauf, _leistung) = parse_smartmeter(&smart_daten, &tx);
             #[cfg(debug_assertions)]
-            println!("Kauf: {}, Verkauf: {}, Leistung: {}", kauf, verkauf, leistung);
+            println!("Kauf: {}, Verkauf: {}, Leistung: {}", _kauf, _verkauf, _leistung);
             sleep(Duration::from_millis(1000));
         }
 
