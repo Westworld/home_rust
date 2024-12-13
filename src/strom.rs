@@ -5,6 +5,8 @@ use std::time::{Duration};
 use chrono::prelude::*;
 use std::fs::OpenOptions;
 use std::io::prelude::*;
+use std::path::Path;
+use std::fs;
 
 // SML Protocol http://www.stefan-weigert.de/php_loader/sml.php
 // https://wiki.volkszaehler.org/hardware/channels/meters/power/edl-ehz/emh-ehz-h1
@@ -409,6 +411,12 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
         path = "/Users/thomas/documents/rust/Strom/Day/".to_string()+&the_date;
     }  
     let path1 = format!("{}/Strom_{}.csv", path, the_url_date);
+
+    if !Path::new(&path).exists() {
+        fs::create_dir_all(&path).unwrap_or_else(|why| {
+            println!("! {:?}", why.kind());
+        });  
+    }
     
     match OpenOptions::new()
         .write(true)
