@@ -50,6 +50,10 @@ fn run_muell(tx: &std::sync::mpsc::Sender<crate::Mymessage>) {
                         } else {
                             if prop.name == "DTSTART" {
                                 date = prop.value.unwrap();
+                                //date = date;
+                                date = date[..8].to_string();
+                                #[cfg(debug_assertions)]
+                                println!("date: {:?}", date);
                             }   
                         }                     
                     }
@@ -61,6 +65,8 @@ fn run_muell(tx: &std::sync::mpsc::Sender<crate::Mymessage>) {
                     {
                         // wenn date = heute und heute vor 12 Uhr oder date = morgen
                         if (date == dt_heute) || (date == dt_morgen) {
+                            #[cfg(debug_assertions)]
+                            println!("treffer: {:?}", date);
                             if date == dt_heute && local.hour() >= 10 {
                                 crate::send_message("display/muell", "-".to_string(), tx);
                             } else 
@@ -104,8 +110,8 @@ mod tests {
     #[test]
     fn testmuell() {
 
-
-        super::run_muell( );
+        let (_tx, _rx) = crate::mpsc::channel();
+        super::run_muell(&_tx );
 
     }  
 }
