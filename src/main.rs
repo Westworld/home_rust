@@ -62,7 +62,7 @@ fn main()  {
     let mqttuser  = env!("MQTT_user");
     let mqttpass  = env!("MQTT_password");
 
-    let mut mqttoptions = MqttOptions::new(mqttclient, "192.168.0.46", 1883);
+    let mut mqttoptions = MqttOptions::new(mqttclient, "192.168.0.63", 1883);
     mqttoptions
         .set_keep_alive(Duration::from_secs(5))
         .set_credentials(mqttuser, mqttpass);
