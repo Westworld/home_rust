@@ -81,16 +81,17 @@ fn parse_einzel(block: String, tx: &std::sync::mpsc::Sender<crate::Mymessage>) {
                             gesamtwert /= 6.0;
                             gesamtwert = gesamtwert * 25.0 / 1000.0;
                             gesamtwert = (gesamtwert * 230.0).round();
+                            // Wohnzimmer, Keller, Billard, Arbeitszimmer, Heizung, minus 20
+                            if (counter == 8) || (counter == 11) || (counter == 13) || (counter == 14) || (counter == 15)  {
+                                gesamtwert -= 20.0;
+                            }                           
                             if counter == 7 {
                                 gesamtwert -= 50.0;
-                            }
-                            if counter == 14 {
-                                gesamtwert -= 20.0;
                             }
                             if counter < 4 && gesamtwert < 100.0 {
                                 gesamtwert = 0.0;
                             }
-                            if gesamtwert < 0.0 {
+                            if gesamtwert < 10.0 {
                                 gesamtwert = 0.0;
                             }
                             #[cfg(debug_assertions)]
