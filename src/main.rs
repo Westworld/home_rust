@@ -6,6 +6,7 @@ use rumqttc::{Client, MqttOptions, QoS};
 use std::time::{Duration};
 use std::thread::sleep;
 use std::sync::mpsc;
+use serde_json::json;
 
 // compile: cargo build
 // test: cargo run
@@ -67,7 +68,10 @@ fn main()  {
         .set_keep_alive(Duration::from_secs(5))
         .set_credentials(mqttuser, mqttpass);
 
-    let (client, mut connection) = Client::new(mqttoptions, 10);
+    let (mut client, mut connection) = Client::new(mqttoptions, 10);
+
+    send_mqtt_discovery_live(&mut client);
+
     let (tx, rx) = mpsc::channel();
     
     let _handle = thread::spawn( || {
@@ -138,6 +142,46 @@ fn main()  {
         }
     }
 
+}
+
+fn send_mqtt_discovery_live(client: &mut Client) {
+    // Hilfsfunktion für die JSON-Erstellung, um Code-Wiederholung zu vermeiden
+    let publish_sensor = |id: &str, name: &str, topic: &str, unit: &str, class: &str| {
+        let config_topic = format!("homeassistant/sensor/{}/config", id);
+        let payload = json!({
+            "name": name,
+            "stat_t": topic,
+            "unit_of_meas": unit,
+            "dev_cla": class,
+            "stat_cla": "measurement", // WICHTIG: Sagt HA, dass es ein Live-Wert ist
+            "uniq_id": format!("{}_id", id),
+            "dev": {
+                "ids": ["energiemanager_rust"],
+                "name": "Energie Manager (Rust)",
+                "mdl": "Bridge",
+                "mf": "Eigenbau"
+            }
+        }).to_string();
+        
+        let _ = client.try_publish(config_topic, QoS::AtLeastOnce, true, payload);
+    };
+
+    // --- JETZT DIE SENSOREN ANMELDEN ---
+
+    // Hausbatterie SOC (%)
+    publish_sensor("haus_batterie_soc", "Hausbatterie Ladestand", "HomeServer/Batterie/USOC", "%", "battery");
+
+    // Hausbatterie Leistung (Watt - Laden/Entladen)
+    publish_sensor("haus_batterie_power", "Hausbatterie Leistung", "HomeServer/Batterie/Pac_total_W", "W", "power");
+
+    // PV Erzeugung (Watt) - Hier musst du dein Topic einsetzen
+    publish_sensor("pv_erzeugung_aktuell", "PV Erzeugung aktuell", "HomeServer/Strom/Produktion", "W", "power");
+
+    // Hausverbrauch (Watt) - Hier musst du dein Topic einsetzen
+    publish_sensor("hausverbrauch_aktuell", "Hausverbrauch aktuell", "HomeServer/Strom/GesamtVerbrauch", "W", "power");
+
+    // Autobatterie SOC (%) - Hier musst du dein Topic einsetzen
+    publish_sensor("auto_batterie_soc", "Auto Ladestand", "weconnect/data/Charge", "%", "battery");
 }
 
 
