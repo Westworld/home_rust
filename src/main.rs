@@ -16,7 +16,7 @@ use serde_json::json;
 // ps ax | grep -v grep | grep http_test
 // sudo nohup /home/pi/rust/home_rust/target/release/http_test &
 
-// cp /home/pi/rust/home_rust/target/release/http_test /home/pi/http_test_backup
+// ??? cp /home/pi/rust/home_rust/target/release/http_test /home/pi/http_test_backup
 
 
 pub struct Mymessage {
@@ -146,14 +146,16 @@ fn main()  {
 
 fn send_mqtt_discovery_live(client: &mut Client) {
     // Hilfsfunktion für die JSON-Erstellung, um Code-Wiederholung zu vermeiden
-    let publish_sensor = |id: &str, name: &str, topic: &str, unit: &str, class: &str| {
+let publish_sensor = |id: &str, name: &str, topic: &str, unit: &str, class: &str, template: Option<&str>, client: &mut Client| {
         let config_topic = format!("homeassistant/sensor/{}/config", id);
-        let payload = json!({
+        
+        // Wir bauen das JSON-Objekt dynamisch auf
+        let mut payload_json = json!({
             "name": name,
             "stat_t": topic,
             "unit_of_meas": unit,
             "dev_cla": class,
-            "stat_cla": "measurement", // WICHTIG: Sagt HA, dass es ein Live-Wert ist
+            "stat_cla": "measurement",
             "uniq_id": format!("{}_id", id),
             "dev": {
                 "ids": ["energiemanager_rust"],
@@ -161,27 +163,40 @@ fn send_mqtt_discovery_live(client: &mut Client) {
                 "mdl": "Bridge",
                 "mf": "Eigenbau"
             }
-        }).to_string();
+        });
+
+        // Wenn ein Template übergeben wurde, fügen wir es dem JSON hinzu
+        if let Some(tpl) = template {
+            payload_json["val_tpl"] = json!(tpl); // 'val_tpl' ist die Abkürzung für 'value_template'
+        }
         
+        let payload = payload_json.to_string();
         let _ = client.try_publish(config_topic, QoS::AtLeastOnce, true, payload);
     };
 
     // --- JETZT DIE SENSOREN ANMELDEN ---
 
     // Hausbatterie SOC (%)
-    publish_sensor("haus_batterie_soc", "Hausbatterie Ladestand", "HomeServer/Batterie/USOC", "%", "battery");
+    publish_sensor("haus_batterie_soc", "Hausbatterie Ladestand", "HomeServer/Batterie/USOC", "%", "battery", None, client);
 
     // Hausbatterie Leistung (Watt - Laden/Entladen)
-    publish_sensor("haus_batterie_power", "Hausbatterie Leistung", "HomeServer/Batterie/Pac_total_W", "W", "power");
+    publish_sensor("haus_batterie_power", "Hausbatterie Leistung", "HomeServer/Batterie/Pac_total_W", "W", "power", None, client);
 
     // PV Erzeugung (Watt) - Hier musst du dein Topic einsetzen
-    publish_sensor("pv_erzeugung_aktuell", "PV Erzeugung aktuell", "HomeServer/Strom/Produktion", "W", "power");
+    publish_sensor("pv_erzeugung_aktuell", "PV Erzeugung aktuell", "HomeServer/Strom/Produktion", "W", "power", None, client);
 
     // Hausverbrauch (Watt) - Hier musst du dein Topic einsetzen
-    publish_sensor("hausverbrauch_aktuell", "Hausverbrauch aktuell", "HomeServer/Strom/GesamtVerbrauch", "W", "power");
+    publish_sensor("hausverbrauch_aktuell", "Hausverbrauch aktuell", "HomeServer/Strom/GesamtVerbrauch", "W", "power", None, client);
+
+    // 2. Autobatterie MIT Template, um das "%" wegzuschneiden
+    // Das Template ersetzt '%' durch ein Nichts und wandelt es zur Sicherheit in einen Float (Zahl) um.
+    let auto_soc_template = "{{ value | replace('%', '') | float(0) }}";
 
     // Autobatterie SOC (%) - Hier musst du dein Topic einsetzen
-    publish_sensor("auto_batterie_soc", "Auto Ladestand", "weconnect/data/Charge", "%", "battery");
+    publish_sensor("auto_batterie_soc", "Auto Ladestand", "weconnect/data/Charge", "%", "battery", 
+        Some(auto_soc_template), 
+        client
+    );
 }
 
 
