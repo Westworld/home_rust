@@ -475,16 +475,19 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
             let einzel_daten = get_einzel();
             parse_einzel(einzel_daten, &tx);
 
+            /*
             let smart_daten = get_smartmeter();
             //fs::write("smartmeter.txt", &smart_daten).unwrap();
             //println!("smartmeter geschrieben");
             let (_kauf, _verkauf, _leistung) = parse_smartmeter(&smart_daten, &tx);
             #[cfg(debug_assertions)]
             println!("Kauf: {}, Verkauf: {}, Leistung: {}", _kauf, _verkauf, _leistung);
+            */
             sleep(Duration::from_millis(1000));
         }
 
-        if (second == 15) || (second == 45) {
+    /*
+        if (second == 61) || (second == 62) { 
             let smart_daten = get_smartmeter();
             //fs::write("smartmeter.txt", &smart_daten).unwrap();
             //println!("smartmeter geschrieben");
@@ -501,6 +504,7 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
             sleep(Duration::from_millis(1000));
 
         }
+            */
 
         sleep(Duration::from_millis(200));
     }
