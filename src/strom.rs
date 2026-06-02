@@ -176,10 +176,12 @@ fn get_einzel() -> String {
     }
 }
 
+/*
 fn find_subsequence(haystack: &[u8], needle: &[u8]) -> Option<usize> {
     haystack.windows(needle.len()).position(|window| window == needle)
 }
-
+*/
+/*
 fn findflag(welches: Findtag, buffer: &Vec<u8>) -> i32 {
     let vergleich: Vec<u8> = match welches {
         Findtag::Start =>    [0x1b,0x1b,0x1b,0x1b,0x01,0x01,0x01,0x01].to_vec(),
@@ -197,7 +199,7 @@ fn findflag(welches: Findtag, buffer: &Vec<u8>) -> i32 {
         return pos.unwrap() as i32;
     }
 }
-
+*/
 /*
 fn hex_to_int(data: &[u8], bits: u8) -> i64 {
     if bits == 8 {
