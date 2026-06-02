@@ -26,7 +26,7 @@ fn get_wallbox(tx: &std::sync::mpsc::Sender<crate::Mymessage>) -> i32 {
         let parsed = json::parse(answer.as_str()).unwrap();
         for topiccheck in check {
             if parsed[topiccheck].is_null() {
-                return;
+                return 0;
             }
             let  thepayload: String ;
             if topiccheck == "nrg" {

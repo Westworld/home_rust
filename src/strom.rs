@@ -393,7 +393,7 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
     //sleep(Duration::from_secs(15));
 
     let mut lastday: u32;
-    let mut file: std::fs::File;
+    //let mut file: std::fs::File;
 
     // this is only to init it, to avoid rust complaining about none initialisied
     let local: DateTime<Local> = Local::now();
@@ -418,7 +418,7 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
             println!("! {:?}", why.kind());
         });  
     }
-    
+    /*
     match OpenOptions::new()
         .write(true)
         .append(true)
@@ -432,7 +432,7 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
                 return;
             }               
         }
-
+    */
 
 
     loop {
@@ -453,7 +453,7 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
                 path = "/Users/thomas/documents/rust/Strom/Day/".to_string()+&the_date;
             }  
             let path1 = format!("{}/Strom_{}.csv", path, the_url_date);
-            
+            /*
             match OpenOptions::new()
                 .write(true)
                 .append(true)
@@ -467,6 +467,7 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
                         return;
                     }               
                 }
+                */
         }
 
 
