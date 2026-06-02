@@ -3,7 +3,7 @@ use std::io::{self, Write};
 use std::thread::sleep;
 use std::time::{Duration};
 use chrono::prelude::*;
-use std::fs::OpenOptions;
+//use std::fs::OpenOptions;
 use std::io::prelude::*;
 use std::path::Path;
 use std::fs;
@@ -31,6 +31,7 @@ Found 3 ports:
 
     */
 
+    /*
     enum Findtag {
         Start,
         End,
@@ -38,7 +39,7 @@ Found 3 ports:
         Verkauf,
         Leistung
     }
-
+*/
 
 
 fn parse_einzel(block: String, tx: &std::sync::mpsc::Sender<crate::Mymessage>) {
@@ -197,6 +198,7 @@ fn findflag(welches: Findtag, buffer: &Vec<u8>) -> i32 {
     }
 }
 
+/*
 fn hex_to_int(data: &[u8], bits: u8) -> i64 {
     if bits == 8 {
         let rgba: i8 = data[0] as i8;
@@ -224,7 +226,9 @@ fn hex_to_int(data: &[u8], bits: u8) -> i64 {
         }
     }
 }
+*/
 
+/*
 fn get_smart_value(data: &Vec<u8>) -> f64 {
 
     let length = (data[0] & 0x0F) -1;
@@ -281,7 +285,9 @@ fn get_smart_value(data: &Vec<u8>) -> f64 {
     }
     
 }
+    */
 
+/*
 fn parse_smartmeter(data: &Vec<u8>, tx: &std::sync::mpsc::Sender<crate::Mymessage>) -> (f64, f64, f64) {
     let kauf: f64;
     let pos = findflag(Findtag::Kauf, data);
@@ -325,7 +331,8 @@ fn parse_smartmeter(data: &Vec<u8>, tx: &std::sync::mpsc::Sender<crate::Mymessag
 
     return (kauf, verkauf, leistung);
 }
-
+*/
+/*
 fn get_smartmeter() -> Vec<u8> {
     let port_name ="/dev/ttyUSB0";
     let baud_rate = 9600;
@@ -384,7 +391,7 @@ fn get_smartmeter() -> Vec<u8> {
         }
     }
 }
-   
+  */ 
 
 pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sync::mpsc::Sender<crate::Mymessage>) {
     // alle 30 sec Einzelzähler
@@ -411,7 +418,7 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
     else {
         path = "/Users/thomas/documents/rust/Strom/Day/".to_string()+&the_date;
     }  
-    let path1 = format!("{}/Strom_{}.csv", path, the_url_date);
+    //let path1 = format!("{}/Strom_{}.csv", path, the_url_date);
 
     if !Path::new(&path).exists() {
         fs::create_dir_all(&path).unwrap_or_else(|why| {
@@ -452,7 +459,7 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
             else {
                 path = "/Users/thomas/documents/rust/Strom/Day/".to_string()+&the_date;
             }  
-            let path1 = format!("{}/Strom_{}.csv", path, the_url_date);
+            //let path1 = format!("{}/Strom_{}.csv", path, the_url_date);
             /*
             match OpenOptions::new()
                 .write(true)
