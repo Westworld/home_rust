@@ -1,7 +1,7 @@
 use std::thread::sleep;
 use std::time::{Duration};
 
-fn get_wallbox(tx: &std::sync::mpsc::Sender<crate::Mymessage>)  {
+fn get_wallbox(tx: &std::sync::mpsc::Sender<crate::Mymessage>) -> i32 {
 
     // http://192.168.0.63/proxy.php/192.168.189.12:8080/api/v1/status
     let host1:  &str;
@@ -16,6 +16,7 @@ fn get_wallbox(tx: &std::sync::mpsc::Sender<crate::Mymessage>)  {
     }
 
     let answer : String = crate::http::get_request(host1, 10);
+    let mut total: i32 = 0;
     #[cfg(debug_assertions)]
     println!("wallbox {}", answer);
 
@@ -29,7 +30,7 @@ fn get_wallbox(tx: &std::sync::mpsc::Sender<crate::Mymessage>)  {
             }
             let  thepayload: String ;
             if topiccheck == "nrg" {
-                let mut total: i32 = parsed["nrg"][11].as_i32().unwrap();
+                total = parsed["nrg"][11].as_i32().unwrap();
                 total += parsed["nrg"][12].as_i32().unwrap();
                 total += parsed["nrg"][13].as_i32().unwrap();
                 thepayload = total.to_string();
@@ -45,15 +46,21 @@ fn get_wallbox(tx: &std::sync::mpsc::Sender<crate::Mymessage>)  {
         }
 
     }
+    return total;
 }
 
 
 pub fn do_wallbox(tx: std::sync::mpsc::Sender<crate::Mymessage>) {
     sleep(Duration::from_secs(5));
+    let mut wallbox_total : i32  = 0;
     loop {
-        sleep(Duration::from_secs(60));
+        if wallbox_total == 0 {
+            sleep(Duration::from_secs(60));
+        } else {
+            sleep(Duration::from_secs(10));
+        }
         
-        get_wallbox(&tx);
+        wallbox_total = get_wallbox(&tx);
     }
 
 }
