@@ -411,7 +411,7 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
     lastday = local.day();
 
     let the_date: String = format!("{}", local.format("%Y-%b"));
-    let the_url_date: String = format!("{}", local.format("%Y%m%d"));
+   // let the_url_date: String = format!("{}", local.format("%Y%m%d"));
     let path: String;
     let hostname = env!("HOSTNAME");
     if hostname != "Thomas_test" {
@@ -453,7 +453,8 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
 
             let the_date: String = format!("{}", local.format("%Y-%b"));
             let the_url_date: String = format!("{}", local.format("%Y%m%d"));
-            let path: String;
+        //    let path: String;
+        /*
             let hostname = env!("HOSTNAME");
             if hostname != "Thomas_test" {
                 path = "/home/pi/Strom/Day/".to_string()+&the_date;
@@ -461,6 +462,7 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
             else {
                 path = "/Users/thomas/documents/rust/Strom/Day/".to_string()+&the_date;
             }  
+        */
             //let path1 = format!("{}/Strom_{}.csv", path, the_url_date);
             /*
             match OpenOptions::new()
