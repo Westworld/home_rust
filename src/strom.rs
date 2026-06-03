@@ -179,14 +179,8 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
 
     //sleep(Duration::from_secs(15));
 
-    let mut lastday: u32;
-    //let mut file: std::fs::File;
-
     // this is only to init it, to avoid rust complaining about none initialisied
     let local: DateTime<Local> = Local::now();
-
-    // new day
-    lastday = local.day();
 
     let the_date: String = format!("{}", local.format("%Y-%b"));
    // let the_url_date: String = format!("{}", local.format("%Y%m%d"));
