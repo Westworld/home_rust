@@ -78,10 +78,10 @@ fn main()  {
         udplog::do_udp();
     });
 
-    let tx2 = tx.clone();
-    let _handle2 = thread::spawn( || {
-            fritz::do_fritz(tx2);
-        });
+    //let tx2 = tx.clone();
+    //let _handle2 = thread::spawn( || {
+    //        fritz::do_fritz(tx2);
+    //    });
 
     let tx3 = tx.clone();
     let _handle3 = thread::spawn( || {
