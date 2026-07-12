@@ -20,7 +20,7 @@ pub fn do_udp() {
 
     let mut file;
     let path: &str;
-    let hostname = env!("HOSTNAME");  // compile time!!!
+    let hostname = env!("APP_HOSTNAME");  // compile time!!!
     if hostname != "Thomas_test" {
          path = "/home/pi/udplog.txt";
     }

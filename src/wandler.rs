@@ -73,7 +73,7 @@ fn get_wandler_hour(tx: &std::sync::mpsc::Sender<crate::Mymessage>, local: &Date
     println!("date: {} {}", the_date, the_url_date);
     let path: String;
     let url: String;
-    let hostname = env!("HOSTNAME");
+    let hostname = env!("APP_HOSTNAME");
     if hostname != "Thomas_test" {
         path = "/home/pi/Strom/Day/".to_string()+&the_date;
         url = "http://192.168.189.".to_string();
@@ -120,7 +120,7 @@ fn get_wandler_day(inlocal: &DateTime<Local>,  tx: &std::sync::mpsc::Sender<crat
     println!("date: {} {}", the_date, the_url_date);
     let path: String;
     let url: String;
-    let hostname = env!("HOSTNAME");
+    let hostname = env!("APP_HOSTNAME");
     if hostname != "Thomas_test" {
         path = "/home/pi/Strom/Month/".to_string()+&the_date;
         url = "http://192.168.189.".to_string();
@@ -155,7 +155,7 @@ fn get_wandler_month(inlocal: &DateTime<Local>,  tx: &std::sync::mpsc::Sender<cr
     println!("date: {} {}", the_date, the_url_date);
     let path: String;
     let url: String;
-    let hostname = env!("HOSTNAME");
+    let hostname = env!("APP_HOSTNAME");
     if hostname != "Thomas_test" {
         path = "/home/pi/Strom/Year/".to_string();
         url = "http://192.168.189.".to_string();
@@ -187,7 +187,7 @@ fn get_wandler_month(inlocal: &DateTime<Local>,  tx: &std::sync::mpsc::Sender<cr
 fn get_wandler(tx: &std::sync::mpsc::Sender<crate::Mymessage>) -> i32 {
     let host1:  &str;  
     let host2:  &str;     
-    let hostname = env!("HOSTNAME");
+    let hostname = env!("APP_HOSTNAME");
     if hostname != "Thomas_test" {
             #[cfg(debug_assertions)]
             println!("hostname '{}' {}",hostname, hostname.len());

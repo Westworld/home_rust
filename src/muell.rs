@@ -9,7 +9,7 @@ use std::thread::sleep;
 
 fn run_muell(tx: &std::sync::mpsc::Sender<crate::Mymessage>) {
     let path: &str;
-    let hostname = env!("HOSTNAME");
+    let hostname = env!("APP_HOSTNAME");
     if hostname != "Thomas_test" {
         path = "/home/pi/abfuhrtermine.ics";
     }

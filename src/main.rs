@@ -12,9 +12,14 @@ use serde_json::json;
 // test: cargo run
 // test:  cargo test -- --nocapture muell::tests::testmuell
 // final: cargo build --release     // binary in target/release
-// kill old running build on raspi first
-// ps ax | grep -v grep | grep http_test
-// sudo nohup /home/pi/rust/home_rust/target/release/http_test &
+
+
+/*
+sudo systemctl stop homerust.service
+sudo systemctl start homerust.service
+
+
+*/
 
 // ??? cp /home/pi/rust/home_rust/target/release/http_test /home/pi/http_test_backup
 
@@ -35,7 +40,7 @@ pub mod udplog;
 pub mod muell;
 
 fn send_message(the_topic: &str, the_payload:String, tx: &std::sync::mpsc::Sender<crate::Mymessage>) {
-    let hostname = env!("HOSTNAME");
+    let hostname = env!("APP_HOSTNAME");
     if hostname != "Thomas_test" {
         let answ1 = crate::Mymessage {
             topic: String::from(the_topic),
@@ -52,12 +57,12 @@ fn send_message(the_topic: &str, the_payload:String, tx: &std::sync::mpsc::Sende
 
 fn main()  {
     let mqttclient: String;
-    let hostname = env!("HOSTNAME");  // compile time!!!
+    let hostname = env!("APP_HOSTNAME");  // compile time!!!
     if hostname != "Thomas_test" {
          mqttclient = hostname.to_string();
     }
     else {
-        mqttclient = "MQTT_".to_owned()+env!("HOSTNAME");
+        mqttclient = "MQTT_".to_owned()+env!("APP_HOSTNAME");
     }
     
     let mqttuser  = env!("MQTT_user");

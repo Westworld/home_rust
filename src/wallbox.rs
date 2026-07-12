@@ -5,7 +5,7 @@ fn get_wallbox(tx: &std::sync::mpsc::Sender<crate::Mymessage>) -> i32 {
 
     // http://192.168.0.63/proxy.php/192.168.189.12:8080/api/v1/status
     let host1:  &str;
-    let hostname = env!("HOSTNAME");
+    let hostname = env!("APP_HOSTNAME");
     if hostname != "Thomas_test" {
         #[cfg(debug_assertions)]
         println!("hostname '{}' {}",hostname, hostname.len());
