@@ -187,7 +187,7 @@ pub fn do_strom(tx: std::sync::mpsc::Sender<crate::Mymessage>) { // (tx: std::sy
     let path: String;
     let hostname = env!("APP_HOSTNAME");
     if hostname != "Thomas_test" {
-        path = "/home/pi/Strom/Day/".to_string()+&the_date;
+        path = "/home/thomas/Strom/Day/".to_string()+&the_date;
     }
     else {
         path = "/Users/thomas/documents/rust/Strom/Day/".to_string()+&the_date;
