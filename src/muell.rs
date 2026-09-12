@@ -87,6 +87,7 @@ fn run_muell(tx: &std::sync::mpsc::Sender<crate::Mymessage>) {
 
 pub fn do_muell(tx: std::sync::mpsc::Sender<crate::Mymessage>) {
     sleep(Duration::from_secs(15));
+    run_muell(&tx);
     loop {
 
         let local: DateTime<Local> = Local::now();

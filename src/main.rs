@@ -191,17 +191,8 @@ let publish_sensor = |id: &str, name: &str, topic: &str, unit: &str, class: &str
     publish_sensor("pv_erzeugung_aktuell", "PV Erzeugung aktuell", "HomeServer/Strom/Produktion", "W", "power", None, client);
 
     // Hausverbrauch (Watt) - Hier musst du dein Topic einsetzen
-    publish_sensor("hausverbrauch_aktuell", "Hausverbrauch aktuell", "HomeServer/Strom/GesamtVerbrauch", "W", "power", None, client);
+    publish_sensor("hausverbrauch_aktuell", "Hausverbrauch aktuell", "HomeServer/Einzel/Gesamt", "W", "power", None, client);
 
-    // 2. Autobatterie MIT Template, um das "%" wegzuschneiden
-    // Das Template ersetzt '%' durch ein Nichts und wandelt es zur Sicherheit in einen Float (Zahl) um.
-    let auto_soc_template = "{{ value | replace('%', '') | float(0) }}";
-
-    // Autobatterie SOC (%) - Hier musst du dein Topic einsetzen
-    publish_sensor("auto_batterie_soc", "Auto Ladestand", "weconnect/data/Charge", "%", "battery", 
-        Some(auto_soc_template), 
-        client
-    );
 }
 
 
