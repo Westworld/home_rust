@@ -99,7 +99,7 @@ fn get_wandler_hour(tx: &std::sync::mpsc::Sender<crate::Mymessage>, local: &Date
     #[cfg(debug_assertions)]
     println!("Wandler: {} {} {}", haus, garage, haus+garage);
 
-    if haus >= 0.0 {
+/*     if haus >= 0.0 {
         crate::send_message("HomeServer/Strom/HausDaily", haus.to_string(), tx);
     }
     if garage >= 0.0 {
@@ -108,11 +108,14 @@ fn get_wandler_hour(tx: &std::sync::mpsc::Sender<crate::Mymessage>, local: &Date
     let total:f64 = ((garage+haus) * 100.0).round() / 100.0;
     if garage > 0.0 && haus > 0.0 {
         crate::send_message("HomeServer/Strom/ProduktionDaily", total.to_string(), tx);   
-    } 
+    }  */
 }
 
 fn get_wandler_day(inlocal: &DateTime<Local>,  tx: &std::sync::mpsc::Sender<crate::Mymessage>)  {
     let local: DateTime<Local>  = *inlocal - TimeDelta::try_minutes(60).unwrap();
+
+    get_wandler_hour(&tx, &local);
+    
     let the_date: String = format!("{}", local.format("%Y"));
     let the_url_date: String = format!("{}", local.format("%Y%m"));
 
@@ -278,10 +281,11 @@ pub fn do_wandler(tx: std::sync::mpsc::Sender<crate::Mymessage>) {
         }
 
         let local: DateTime<Local> = Local::now();
-        if local.hour() != last_hour {
+
+/*         if local.hour() != last_hour {
             last_hour = local.hour();
             get_wandler_hour(&tx, &local);
-        }
+        } */
         if local.day() != last_day {
             last_day = local.day();
             get_wandler_day(&local, &tx);
